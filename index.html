@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Analysis Course Project</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <h1>Your Project Title Here</h1>
+  <p class="subtitle">A short one-line description of what this project analyzes.</p>
+</header>
+
+<!-- ============================================= -->
+<!-- TAB NAVIGATION -->
+<!-- ============================================= -->
+<nav class="tabs" role="tablist" aria-label="Project sections">
+  <button class="tab-btn active" role="tab" aria-selected="true" data-tab="overview">Overview</button>
+  <button class="tab-btn" role="tab" aria-selected="false" data-tab="dataset">Dataset</button>
+  <button class="tab-btn" role="tab" aria-selected="false" data-tab="methodology">Methodology</button>
+  <button class="tab-btn" role="tab" aria-selected="false" data-tab="demo">Live Python Demo</button>
+  <button class="tab-btn" role="tab" aria-selected="false" data-tab="results">Results &amp; Conclusions</button>
+</nav>
+
+<main>
+
+  <!-- ============================================= -->
+  <!-- TAB 1: OVERVIEW -->
+  <!-- ============================================= -->
+  <section id="overview" class="tab-panel active" role="tabpanel">
+    <h2>Overview</h2>
+    <p>
+      <!-- TODO: Replace with a paragraph describing your course, the question
+           your project answers, and why it matters. -->
+      Placeholder: describe the goal of your data analysis project here.
+    </p>
+    <ul>
+      <li><strong>Course:</strong> TODO — e.g. "Intro to Data Analysis, Fall 2026"</li>
+      <li><strong>Author:</strong> TODO — your name</li>
+      <li><strong>Tools used:</strong> TODO — e.g. Python, pandas, matplotlib</li>
+    </ul>
+  </section>
+
+  <!-- ============================================= -->
+  <!-- TAB 2: DATASET -->
+  <!-- ============================================= -->
+  <section id="dataset" class="tab-panel" role="tabpanel">
+    <h2>Dataset</h2>
+    <p>
+      <!-- TODO: Describe where your data came from, its size, and its columns. -->
+      Placeholder: describe your dataset here (source, size, features/columns).
+    </p>
+    <table class="data-preview">
+      <thead>
+        <tr><th>column_1</th><th>column_2</th><th>column_3</th></tr>
+      </thead>
+      <tbody>
+        <!-- TODO: Replace this sample table with a few real rows from your data,
+             or generate it dynamically in script.js -->
+        <tr><td>example</td><td>example</td><td>example</td></tr>
+        <tr><td>example</td><td>example</td><td>example</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============================================= -->
+  <!-- TAB 3: METHODOLOGY -->
+  <!-- ============================================= -->
+  <section id="methodology" class="tab-panel" role="tabpanel">
+    <h2>Methodology</h2>
+    <p>
+      <!-- TODO: Explain your cleaning steps, techniques, models, or statistical
+           tests used. -->
+      Placeholder: outline your analysis approach step by step here.
+    </p>
+    <ol>
+      <li>TODO — e.g. Data cleaning / handling missing values</li>
+      <li>TODO — e.g. Exploratory data analysis</li>
+      <li>TODO — e.g. Statistical test or model applied</li>
+    </ol>
+  </section>
+
+  <!-- ============================================= -->
+  <!-- TAB 4: LIVE PYTHON DEMO (auto-runs via Pyodide) -->
+  <!-- ============================================= -->
+  <section id="demo" class="tab-panel" role="tabpanel">
+    <h2>Live Python Demo</h2>
+    <p>
+      This tab runs real Python in your browser (via
+      <a href="https://pyodide.org" target="_blank" rel="noopener">Pyodide</a>).
+      It executes automatically the first time you open this tab.
+    </p>
+
+    <!-- TODO: Replace the contents of the id="python-code" script block below
+         with your own analysis code. Keep type="text/plain" — the script tag
+         is just used to store the code text, it is never executed by the
+         browser directly. -->
+    <script type="text/plain" id="python-code">
+import statistics
+
+# --- Placeholder analysis: replace with your own code ---
+data = [12, 15, 22, 8, 19, 31, 25, 17, 14, 9]
+
+print("Sample data:", data)
+print("Mean:  ", round(statistics.mean(data), 2))
+print("Median:", statistics.median(data))
+print("Stdev: ", round(statistics.stdev(data), 2))
+
+# Need pandas/numpy for your real analysis? Uncomment the two lines below
+# and add the matching loadPackage(...) call in script.js (see comments there).
+# import pandas as pd
+# df = pd.DataFrame({"x": data})
+# print(df.describe())
+    </script>
+
+    <div class="demo-controls">
+      <span id="pyodide-status">Not started</span>
+      <button id="rerun-btn" disabled>Re-run code</button>
+    </div>
+
+    <pre id="python-output" class="code-output">Open this tab to run the Python code…</pre>
+  </section>
+
+  <!-- ============================================= -->
+  <!-- TAB 5: RESULTS & CONCLUSIONS -->
+  <!-- ============================================= -->
+  <section id="results" class="tab-panel" role="tabpanel">
+    <h2>Results &amp; Conclusions</h2>
+    <p>
+      <!-- TODO: Summarize your key findings here. -->
+      Placeholder: summarize what you found and what it means.
+    </p>
+    <img src="assets/placeholder-chart.png" alt="TODO: replace with your chart" class="result-chart">
+    <p>
+      <!-- TODO: Add your concluding thoughts, limitations, and future work. -->
+      Placeholder: conclusions and next steps.
+    </p>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p>Built with GitHub Pages · <a href="https://github.com/" target="_blank" rel="noopener">View source on GitHub</a></p>
+</footer>
+
+<!-- Pyodide runtime (loaded from CDN, runs entirely in the visitor's browser) -->
+<script src="https://cdn.jsdelivr.net/pyodide/v314.0.6/full/pyodide.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
