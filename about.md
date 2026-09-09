@@ -1,14 +1,30 @@
+---
+layout: default
+title: About
+---
 <div class="tabs">
   <input type="radio" name="tabs" id="tabone" checked="checked">
   <label for="tabone">Tab One</label>
   <div class="tab">
-    <p>Content for the first tab goes here.</p>
+    <p>Introduction: discuss what the project is about.</p>
   </div>
   
   <input type="radio" name="tabs" id="tabtwo">
   <label for="tabtwo">Tab Two</label>
   <div class="tab">
-    <p>Content for the second tab goes here.</p>
+    <p>Data: source of data, EDA, preliminary observations.</p>
+  </div>
+
+  <input type="radio" name="tabs" id="tabthree">
+  <label for="tabthree">Tab Two</label>
+  <div class="tab">
+    <p>Analysis: use model.</p>
+  </div>
+
+  <input type="radio" name="tabs" id="tabfour">
+  <label for="tabfour">Tab Two</label>
+  <div class="tab">
+    <p>Conclusion: answer, limit, next step.</p>
   </div>
 </div>
 
