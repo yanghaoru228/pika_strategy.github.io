@@ -89,7 +89,20 @@
         They are attempting to anticipate which cards are likely to become popular in the future and position themselves before the broader market recognizes their value.
       </li>
       
-      <li><strong>Hidden Patterns behind Valuable Cards:</strong> At least ten questions that I want to answer through machine learning.</li>
+      <li><strong>Hidden Patterns behind Valuable Cards:</strong> To explore the the possible strategies to discover card with good potential, the following questions are worthy to explore:
+        <li>Can you predict a card's market price from its Rarity, Supertype, Types, Set Name, Release Year, Artist, and Retreat Cost?</li>
+        <li>What features actually drive the price? Does Rarity swamp everything else, or do Set Name and Artist matter more than expected?</li>
+        <li>How to classify cards into tiers (bulk vs. mid-value vs. chase card)? Among the chase cards, does there exist an internal structure that can bring business values?</li>
+        <li>Detect the anamoly cards, which prices increased or decreased over 200%, and distinguish whether it's genuine market moves from likely data errors or delisted/relisted variants?</li>
+        <li>If the anamoly cards are genuine market moves, what are the features shared by them? Use theses features to check a card outside of the dataset, and check if this is a universal trend. </li>
+        <li>Given a card's stats and price, can you predict its Rarity label? Mismatches between predicted and actual rarity are a good way to catch mislabeled rows. </li>
+        <li>Aggregate to the Set Name level (rarity mix, chase-card ratio, release recency, median price) and model which set characteristics predict overall price appreciation.</li>
+        <li>Since a card is often missing the price of Normal/Reverse Holofoil/Holofoil by design, is there a model that can estimate the "missing" variant price from the populated one(s) plus rarity/set, 
+          useful for portfolio valuation when only partial pricing exists?</li>
+        <li></li>
+        <li></li>
+        <li></li>
+      </li>
     </ul>
   </section>
 
