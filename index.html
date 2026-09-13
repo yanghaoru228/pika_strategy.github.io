@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Data Analysis Course Project</title>
+<title>Pokémon Card Investment Strategy</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -18,7 +18,7 @@
 <!-- ============================================= -->
 <nav class="tabs" role="tablist" aria-label="Project sections">
   <button class="tab-btn active" role="tab" aria-selected="true" data-tab="introduction">Introduction</button>
-  <button class="tab-btn" role="tab" aria-selected="false" data-tab="dataset">Dataset</button>
+  <button class="tab-btn" role="tab" aria-selected="false" data-tab="dataprep">Data Prep</button>
   <button class="tab-btn" role="tab" aria-selected="false" data-tab="analysis">Analysis</button>
   <button class="tab-btn" role="tab" aria-selected="false" data-tab="results">Results &amp; Future Works</button>
   <button class="tab-btn" role="tab" aria-selected="false" data-tab="ref">References</button>
@@ -42,11 +42,11 @@
         Pokémon began in 1996 as a Nintendo video game franchise centered around collecting and battling Pokémon. 
         Its popularity quickly expanded to the trading card game, turning Pokémon cards into a global collecting phenomenon. 
         What began primarily as a children's hobby has developed into a substantial secondary market, where rare, vintage, and professionally graded cards are traded by collectors and investors.
-        Over the past decade, that market has exploded rather than simply grown, with some cards appreciating by over 3000 percent. 
+        Over the past decade, that market has exploded rather than simply grown, with some cards appreciating by over 3000 percent. (See <a href="https://www.wsj.com/finance/pokemon-cards-investment-0163e058">News report</a>) 
         This growth has attracted increasing attention from investors and researchers interested in understanding the factors that drive card prices and market trends. 
         The market has also developed many features similar to traditional financial markets, including price volatility, speculation, professional grading, and increasingly sophisticated pricing data.
-        In early 2026, this trend reached a new milestone when a rare Pikachu Illustrator card reportedly sold for $16.49 million at auction, setting a record for the most expensive Pokémon card ever sold. 
-        The combination of rapidly increasing prices, growing participation from investors, and increasingly available market data makes the Pokémon card market an interesting setting for studying price trends and potential investment strategies.
+        In early 2026, this trend reached a new milestone when a rare Pikachu Illustrator card reportedly sold for $16.49 million at auction, setting a record for the most expensive Pokémon card ever sold. (See <a href="https://www.dogonews.com/2026/3/17/rare-pikachu-illustrator-card-sells-for-record-16-dollars-49-cents-million">News report</a>) 
+        The combination of rapidly increasing prices, growing participation from investors, and increasingly available market data makes the Pokémon card market an interesting setting for studying price trends and potential investment strategies. 
 
         <img src="assets/pikachu-illustrator-pokemon-card.webp" alt="World's most valuable Pokémon card" class="result-chart">
         </li>
@@ -90,31 +90,46 @@
       </li>
       
       <li><strong>Hidden Patterns behind Valuable Cards:</strong> To explore the the possible strategies to discover card with good potential, the following questions are worthy to explore:
-        <li>Can you predict a card's market price from its Rarity, Supertype, Types, Set Name, Release Year, Artist, and Retreat Cost?</li>
-        <li>What features actually drive the price? Does Rarity swamp everything else, or do Set Name and Artist matter more than expected?</li>
-        <li>How to classify cards into tiers (bulk vs. mid-value vs. chase card)? Among the chase cards, does there exist an internal structure that can bring business values?</li>
-        <li>Detect the anamoly cards, which prices increased or decreased over 200%, and distinguish whether it's genuine market moves from likely data errors or delisted/relisted variants?</li>
-        <li>If the anamoly cards are genuine market moves, what are the features shared by them? Use theses features to check a card outside of the dataset, and check if this is a universal trend. </li>
-        <li>Given a card's stats and price, can you predict its Rarity label? Mismatches between predicted and actual rarity are a good way to catch mislabeled rows. </li>
-        <li>Aggregate to the Set Name level (rarity mix, chase-card ratio, release recency, median price) and model which set characteristics predict overall price appreciation.</li>
-        <li>Since a card is often missing the price of Normal/Reverse Holofoil/Holofoil by design, is there a model that can estimate the "missing" variant price from the populated one(s) plus rarity/set, 
-          useful for portfolio valuation when only partial pricing exists?</li>
-        <li></li>
-        <li></li>
-        <li></li>
+        <ul>
+          <li>Can you predict a card's market price from its Rarity, Supertype, Types, Set Name, Release Year, Artist, and Retreat Cost?</li>
+          <li>What features actually drive the price? Does Rarity swamp everything else, or do Set Name and Artist matter more than expected?</li>
+          <li>How to classify cards into tiers (bulk vs. mid-value vs. chase card)? Among the chase cards, does there exist an internal structure that can bring business values?</li>
+          <li>Detect the anamoly cards, which prices increased or decreased over 200%, and distinguish whether it's genuine market moves from likely data errors or delisted/relisted variants?</li>
+          <li>If the anamoly cards are genuine market moves, what are the features shared by them? Use theses features to check a card outside of the dataset, and check if this is a universal trend. </li>
+          <li>Given a card's stats and price, can you predict its Rarity label? Mismatches between predicted and actual rarity are a good way to catch mislabeled rows. </li>
+          <li>Aggregate to the Set Name level (rarity mix, chase-card ratio, release recency, median price) and model which set characteristics predict overall price appreciation.</li>
+          <li>Since a card is often missing the price of Normal/Reverse Holofoil/Holofoil by design, is there a model that can estimate the "missing" variant price from the populated one(s) plus rarity/set, 
+            useful for portfolio valuation when only partial pricing exists?</li>
+          <li></li>
+          <li></li>
+          <li></li>
+        </ul>
       </li>
     </ul>
   </section>
 
   <!-- ============================================= -->
-  <!-- TAB 2: DATASET -->
+  <!-- TAB 2: DATA PREP -->
   <!-- ============================================= -->
-  <section id="dataset" class="tab-panel" role="tabpanel">
-    <h2>Dataset</h2>
+  <section id="dataprep" class="tab-panel" role="tabpanel">
+    <h2>Data Sets</h2>
     <p>
-      <!-- TODO: Describe where your data came from, its size, and its columns. -->
-      Placeholder: describe your dataset here (source, size, features/columns).
+      This project utilizes data from the following third-party repository:
+
+      **[Dataset Name]** - Maintained by [@AuthorUsername](https://github.com). 
+      **Repository:** [://github.com](https://github.com/repository-name)
+      **Version/Commit used:** `a1b2c3d` *(Include the specific commit hash or release tag for reproducibility)*
+      **License:** MIT License 
+    
+
     </p>
+
+    <h2>Data Overview</h2>
+    <p>
+      shape, dtypes, missing values
+    </p>
+
+    
     <table class="data-preview">
       <thead>
         <tr><th>column_1</th><th>column_2</th><th>column_3</th></tr>
