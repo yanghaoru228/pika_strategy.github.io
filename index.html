@@ -301,8 +301,19 @@
     This following price distribution shows: 1) Modern cards are very cheap in general, most of them are under $10; 2) Vintage cards have a binomial distribution, one peak is around $1 and another peak is around $60
     3) There are very few cards that are above $100, and the modern cards and vintage cards are competible. The third point brings very interesting insight about the cards, the high value of a card doesn't depends on vintage or not. 
     <img src="assets/pokemon_eda_charts/05_price_distribution_log.png" alt="supertype and pokemon type" class="result-chart">
-    Th
+    The box-whisker plot below demonstrates the impact of variant prints on the price. As expected, the normal print is the cheapest on average, the reverse holofoil is the second, and the holofoil print is the most expensive one on average.
+    However, the counter intuitive observation is that some of the outliers of normal and reverse holofoil prints can reach up to $1000 roughly, just like the outliers of holofoil print. 
+    Therefore, the variant print has some impact on the price of the card, but it's definitely not a dominating factor. 
     <img src="assets/pokemon_eda_charts/06_price_by_variant.png" alt="price by variant prints" class="result-chart">
+    The box-whisker plot below demonstrates the impact of rarity on the price. Among the rarities that we test on, the cards in the least rare category "common" have the lowest average prices, and the cards in the most rare category "illustration rare" have the highest average prices.
+    But the outliers of many rarity can achieve the same market prices. For example, the card with maximal prices in "Rare Ultra", "Promo", and "Rare Holo" can reach about $1000 range. 
+    Therefore, the rarity has some impact on the price of the card, but it's definitely not a dominating factor. This is a bit suprising, because chasing the rare card is always been advised to the beginning collectors, but this rule actually doesn't hold very well. 
+    <img src="assets/pokemon_eda_charts/08_price_by_rarity.png" alt="price by rarity" class="result-chart">
+    HP and Retreat costs are the gaming features, they usually only matter during a Pokémon card game. Never heard of any discussion about the relevance between the gaming features and the card value.
+    Since it's not widely explored, it's worth to take a closer look at. The following correlation heatmap shows that there is a weak linear correlation between HP and price, and there is no linear correlation between Retreat Cost and price. 
+    This just shows that the gaming features have no linear correlation with the price, but no indication that they have no impact on prices. It's just possible that the relationship in between is not linear. This direction needs more investigation.
+    <img src="assets/pokemon_eda_charts/09_correlation_heatmap.png" alt="hp/retreatcost/price correlation" class="result-chart">
+    
     
     
     
@@ -313,10 +324,7 @@
 
     
 
-      
-
-      The quantitative data inlcudes all kind of market prices of a card, 
-      shape, dtypes, missing values
+  
     </p>
     
 
