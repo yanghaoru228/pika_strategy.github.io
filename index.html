@@ -282,7 +282,31 @@
     If a card has missing value of some print, it simpliy indicates that such product doesn't exist. Since the investors can only purchase the existing product of Pokémon cards, these missing values won't affect our analysis.
     Also, HP/Types/Attacks are ~17-20% missing only because Trainer/Energy cards don't have them, not a data problem.
     <img src="assets/Normal_Holo_reveserholo.jpg" alt="missing values" class="result-chart">
-    Supertypes, Types of Pokémon, and Rairity, are the major players that can impact the card prices, the following figures demonstrate the decompositioon of 
+    Supertypes, Types of Pokémon, and Rairity, are the major players that can impact the card prices, the following figures demonstrate the distribution of data in these specific categories. 
+    About 6/7 of cards in this data set are about Pokémon, about 1/7 of cards are about Trainers, and very few of them are about Evergy. 
+    This is a good distribution of cards, because most valuable cards always have Pokémon on them, and on the contrary, the Energy cards always worthless. 
+    The data sets inlude the cards with a lot of varieties of Pokémon types, so it makes resourceful data to analyze which types of Pokémon can be most popular/valuable. 
+    The data sets include the information about over 7000 Common and Uncommon cards, which are the type of cards that are very cheap. So these data should be dicarded, because they are not so valuable on the market.
+    What are more interesting to check are the cards with at least "Rare" label, because these are the cards that are harder to get on the market. Although they might be cheap at the moment, their prices can increase by a lot within a year.
+    Since the analysis is based on the market data from Feburary to March in 2025, the accuracy of the predication can be varified using the market data now in 2026. 
+    <img src="assets/pokemon_eda_charts/02_supertype_and_types.png" alt="supertype and pokemon type" class="result-chart">
+    <img src="assets/pokemon_eda_charts/03_rarity_counts.png" alt="rarity counts" class="result-chart">
+    
+    <h2>Market Prices Analysis</h2>
+    After know the overall distribution and decomposition of the datasets, it's now time to focus on the key feature of the card, which is the market price. 
+    In this section, the market prices are presented using a log scale (base 10), becuase audience can read of the price range easier in this way. 
+    In this section, a lot of the figures are naive attemps to figure out the impact of different features on the price. 
+    Also some of the analysis are only based on the snap shot of March 2025, because the Feb 2025 is almost identical, no major changes needed to present the figure for both months.
+
+    This following price distribution shows: 1) Modern cards are very cheap in general, most of them are under $10; 2) Vintage cards have a binomial distribution, one peak is around $1 and another peak is around $60
+    3) There are very few cards that are above $100, and the modern cards and vintage cards are competible. The third point brings very interesting insight about the cards, the high value of a card doesn't depends on vintage or not. 
+    <img src="assets/pokemon_eda_charts/05_price_distribution_log.png" alt="supertype and pokemon type" class="result-chart">
+    Th
+    <img src="assets/pokemon_eda_charts/06_price_by_variant.png" alt="price by variant prints" class="result-chart">
+    
+    
+    
+    
     
 
     
