@@ -267,13 +267,24 @@
   </table>
 </div>
     
-    <ol>
+    <ul>
       <li><strong> Quanlitative Data:</strong>
         Pokedex Number (ID to determine which Pokémon it is), Supertype, Subtype, Types, Attacks, Weaknesses, Set Name, Release Date, Aritist, Rarity
       </li>
       <li><strong> Quantitative Data:</strong>
         HP, Retreat Cost, TCG High Price USD (Normal), TCG Market Price USD (Recerse Holofoil), TCG Low Price USD (Reverse Holofoil), TCG High Price USD (Reverse Holofoil), TCG Market Price USD (Holofoil), TCG Low Price USD (Holofoil), TCG High Price USD (Holofoil) 
-    </ol>
+    </ul>
+
+    Next step is to check if there is any values are missing and analyze whether these missing values will affect the data analysis. The following figure indicates the counts of missing data of each category from the data set.
+    <img src="assets/pokemon_eda_charts/01_missing_values.png" alt="missing values" class="result-chart">
+    Notice that there are a lot of missing values under the categories TCG High Price USD (Normal), TCG Market Price USD (Recerse Holofoil), TCG Low Price USD (Reverse Holofoil), TCG High Price USD (Reverse Holofoil), TCG Market Price USD (Holofoil), TCG Low Price USD (Holofoil), TCG High Price USD (Holofoil). 
+    Normal, holofoil and reverse holofoil refer to the different printing techniques of the card. Normal cards are completely flat and non-reflective, holofoil cards shine only on the artwork, and reverse holofoil cards shine everywhere except the artwork. 
+    If a card has missing value of some print, it simpliy indicates that such product doesn't exist. Since the investors can only purchase the existing product of Pokémon cards, these missing values won't affect our analysis.
+    Also, HP/Types/Attacks are ~17-20% missing only because Trainer/Energy cards don't have them, not a data problem.
+
+    
+
+    
 
       
 
