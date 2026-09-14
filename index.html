@@ -313,6 +313,13 @@
     Since it's not widely explored, it's worth to take a closer look at. The following correlation heatmap shows that there is a weak linear correlation between HP and price, and there is no linear correlation between Retreat Cost and price. 
     This just shows that the gaming features have no linear correlation with the price, but no indication that they have no impact on prices. It's just possible that the relationship in between is not linear. This direction needs more investigation.
     <img src="assets/pokemon_eda_charts/09_correlation_heatmap.png" alt="hp/retreatcost/price correlation" class="result-chart">
+    Now, the discussion is going to focus on the change of prices between Feburary and March. The following is the distribution of price changes. It's roughly a normal distribution, with slightly left shift, meaning that more cards have thier prices dropped.
+    But there are more outliers have prices increasing by a lot, than the outliers have prices decreasing by a lot. 
+    <img src="assets/pokemon_eda_charts/12_price_change_distribution.png" alt="distribution of price changes" class="result-chart">
+    The following filter out some cards that has the biggest gains and declines of their prices. The result is very interesting. The top 10 cards with most gains has increased a lot more than the amount decreased by the top 10 cards with most decline.
+    This shows that if investigators pick the correct card, they can make a lot of money out of it. If you pick the wrong card, you won't lose as much money. This shows that Pokemon market is doing great.
+    The astoning result is that, the card "Grimer" increased prices by more than 8000% within a month. How incredible is that. 
+    <img src="assets/pokemon_eda_charts/13_biggest_movers.png" alt="Biggest Movers" class="result-chart">
     
     
     
@@ -326,20 +333,6 @@
 
   
     </p>
-    
-
-    
-    <table class="data-preview">
-      <thead>
-        <tr><th>column_1</th><th>column_2</th><th>column_3</th></tr>
-      </thead>
-      <tbody>
-        <!-- TODO: Replace this sample table with a few real rows from your data,
-             or generate it dynamically in script.js -->
-        <tr><td>example</td><td>example</td><td>example</td></tr>
-        <tr><td>example</td><td>example</td><td>example</td></tr>
-      </tbody>
-    </table>
   </section>
 
   <!-- ============================================= -->
