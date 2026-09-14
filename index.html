@@ -5,6 +5,72 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pokémon Card Investment Strategy</title>
 <link rel="stylesheet" href="style.css">
+
+<style>
+  body {
+    margin: 0;
+    padding: 24px;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: #f9f9f7;
+    color: #0b0b0b;
+  }
+  h1 {
+    font-size: 18px;
+    margin: 0 0 16px;
+  }
+  .hint {
+    font-size: 13px;
+    color: #52514e;
+    margin: 0 0 12px;
+  }
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid #e1e0d9;
+    border-radius: 8px;
+    background: #fcfcfb;
+  }
+  table {
+    border-collapse: collapse;
+    white-space: nowrap;
+    font-size: 13px;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid #e1e0d9;
+    border-right: 1px solid #e1e0d9;
+  }
+  th:last-child, td:last-child {
+    border-right: none;
+  }
+  th {
+    position: sticky;
+    top: 0;
+    background: #f0efec;
+    font-weight: 600;
+    color: #0b0b0b;
+  }
+  th:first-child, td:first-child {
+    position: sticky;
+    left: 0;
+    background: #f0efec;
+    z-index: 1;
+  }
+  td:first-child {
+    background: #fcfcfb;
+    font-weight: 600;
+  }
+  tbody tr:hover td {
+    background: #f4f3ef;
+  }
+  tbody tr:hover td:first-child {
+    background: #ececE8;
+  }
+  a {
+    color: #2a78d6;
+  }
+</style>
 </head>
 <body>
 
@@ -125,13 +191,85 @@
         <li><a href="Data/vintage_pkmn_cards_mar2025.csv">vintage_pkmn_cards_mar2025.csv</a></li>
      
       In Sutton's repository, the data are scrapped from TCG player using a valid API. The data is about the market of modern and vintage Pokémon card between Feburary and March in 2025. 
-      The data sets include over 6000 modern cards, and over 800 vintage cards. For each card, the data include the information not only about the market prices, but also about its Types, Set names, Artists, and other quantitative features. 
+      The data sets include over 6000 modern cards, and over 800 vintage cards. For each card, the data include the information not only about the market prices, but also about its Types, Set names, Artists, and other quanlitative features. 
       Since the data sets have been used in a data analysis project in the origina; repository, the data sets are already clean and organized. 
     </p>
 
     <h2>Data Overview</h2>
     <p>
+      The first step is to understand what kind of quantitative and quanlitative data are included in the datasets, and what are their limitations. A real rows in the data set looks like the following
+
+
+<div class="table-scroll">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Pokedex Number</th>
+        <th>Supertype</th>
+        <th>Subtypes</th>
+        <th>HP</th>
+        <th>Types</th>
+        <th>Attacks</th>
+        <th>Weaknesses</th>
+        <th>Retreat Cost</th>
+        <th>Set Name</th>
+        <th>Release Date</th>
+        <th>Artist</th>
+        <th>Rarity</th>
+        <th>Card Image (Small)</th>
+        <th>Card Image HiRes</th>
+        <th>TCG Player URL</th>
+        <th>TCG Price Date</th>
+        <th>TCG Market Price USD (Normal)</th>
+        <th>TCG Low Price USD (Normal)</th>
+        <th>TCG High Price USD (Normal)</th>
+        <th>TCG Market Price USD (Reverse Holofoil)</th>
+        <th>TCG Low Price USD (Reverse Holofoil)</th>
+        <th>TCG High Price USD (Reverse Holofoil)</th>
+        <th>TCG Market Price USD (Holofoil)</th>
+        <th>TCG Low Price USD (Holofoil)</th>
+        <th>TCG High Price USD (Holofoil)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>base1-1</td>
+        <td>Alakazam</td>
+        <td>65.0</td>
+        <td>Pokémon</td>
+        <td>Stage 2</td>
+        <td>80</td>
+        <td>Psychic</td>
+        <td>Confuse Ray (30)</td>
+        <td>Psychic ×2</td>
+        <td>3</td>
+        <td>Base</td>
+        <td>1999/01/09</td>
+        <td>Ken Sugimori</td>
+        <td>Rare Holo</td>
+        <td><a href="https://images.pokemontcg.io/base1/1.png" target="_blank">image</a></td>
+        <td><a href="https://images.pokemontcg.io/base1/1_hires.png" target="_blank">hi-res</a></td>
+        <td><a href="https://prices.pokemontcg.io/tcgplayer/base1-1" target="_blank">link</a></td>
+        <td>2025/02/22</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>66.05</td>
+        <td>34.25</td>
+        <td>149.99</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
       
+
+      The quantitative data inlcudes all kind of market prices of a card, 
       shape, dtypes, missing values
     </p>
 
