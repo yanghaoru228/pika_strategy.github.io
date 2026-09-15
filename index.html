@@ -291,8 +291,10 @@
     Since the analysis is based on the market data from Feburary to March in 2025, the accuracy of the predication can be varified using the market data now in 2026. 
     <img src="assets/pokemon_eda_charts/02_supertype_and_types.png" alt="supertype and pokemon type" class="result-chart">
     <img src="assets/pokemon_eda_charts/03_rarity_counts.png" alt="rarity counts" class="result-chart">
+    </p>
     
     <h2>Market Prices Analysis</h2>
+    <p>
     After know the overall distribution and decomposition of the datasets, it's now time to focus on the key feature of the card, which is the market price. 
     In this section, the market prices are presented using a log scale (base 10), becuase audience can read of the price range easier in this way. 
     In this section, a lot of the figures are naive attemps to figure out the impact of different features on the price. 
@@ -318,21 +320,22 @@
     <img src="assets/pokemon_eda_charts/12_price_change_distribution.png" alt="distribution of price changes" class="result-chart">
     The following filter out some cards that has the biggest gains and declines of their prices. The result is very interesting. The top 10 cards with most gains has increased a lot more than the amount decreased by the top 10 cards with most decline.
     This shows that if investigators pick the correct card, they can make a lot of money out of it. If you pick the wrong card, you won't lose as much money. This shows that Pokemon market is doing great.
-    The astoning result is that, the card "Grimer" increased prices by more than 8000% within a month. How incredible is that. 
+    The astoning result is that, the card "Grimer" increased prices by more than 8000% within a month. How incredible is that. This well be an important case study to determine what features can contribute to this incredible increasing.
+    If there is a hidden pattern behind this card, can this be generalized to other cards and find their potential. Even just one successful identification of such a card can be extremely profitable for the investigator.
     <img src="assets/pokemon_eda_charts/13_biggest_movers.png" alt="Biggest Movers" class="result-chart">
-    
-    
-    
-    
-    
-    
-
-    
-
-    
-
-  
     </p>
+
+    <h2>Unknow Analysis</h2>
+    <p>
+      In this section, it lists out some data analysis that are hard to interpret. There is not a clear message can be concluded from the plot, but appending the plots may help future understanding. 
+      The first plot shows the sets with most cards in this data set. Does it imply the card from these sets are going to be cheaper, no necessary, how to use the quanlitative variable "Set Name", it's unclear.
+      The second figure shows the scatter plot of card prices. From the previous correlation heatmap, the correlation between HP and price is 0.41, which is a weak correlation. Now, when data points are plotted, a very weak linear relationship can be observed.
+      However, if the relationship is not linear, what could it be? It's not obvious at all. 
+
+      <img src="assets/pokemon_eda_charts/04_top_sets.png" alt="top 15 sets" class="result-chart">
+      <img src="assets/pokemon_eda_charts/10_hp_vs_price.png" alt="HP vs price" class="result-chart">
+    </p>
+    
   </section>
 
   <!-- ============================================= -->
