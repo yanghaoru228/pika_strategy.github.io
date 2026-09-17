@@ -156,17 +156,17 @@
       <li><strong>Hidden Patterns behind Valuable Cards:</strong> To explore the the possible strategies to discover card with good potential, the following questions are worthy to explore:
         <ul>
           <li>Can you predict a card's market price from its Rarity, Supertype, Types, Set Name, Release Year, Artist, and Retreat Cost?</li>
-          <li>What features actually drive the price? Does Rarity swamp everything else, or do Set Name and Artist matter more than expected?</li>
-          <li>How to classify cards into tiers (bulk vs. mid-value vs. chase card)? Among the chase cards, does there exist an internal structure that can bring business values?</li>
+          <li>What features actually drive the price? Does Rarity swamp everything else, or do Set Name and Artist matter more than expected? Rank these features by their importance. </li>
+          <li>How to classify cards into tiers (bulk vs. mid-value vs. chase card)?</li>
           <li>Detect the anamoly cards, which prices increased or decreased over 200%, and distinguish whether it's genuine market moves from likely data errors or delisted/relisted variants?</li>
           <li>If the anamoly cards are genuine market moves, what are the features shared by them? Use theses features to check a card outside of the dataset, and check if this is a universal trend. </li>
           <li>Given a card's stats and price, can you predict its Rarity label? Mismatches between predicted and actual rarity are a good way to catch mislabeled rows. </li>
           <li>Aggregate to the Set Name level (rarity mix, chase-card ratio, release recency, median price) and model which set characteristics predict overall price appreciation.</li>
           <li>Since a card is often missing the price of Normal/Reverse Holofoil/Holofoil by design, is there a model that can estimate the "missing" variant price from the populated one(s) plus rarity/set, 
             useful for portfolio valuation when only partial pricing exists?</li>
-          <li></li>
-          <li></li>
-          <li></li>
+          <li>Among the chase cards, does there exist an internal structure that can bring business values? Does this internal structure lead to any investigating strategy?</li>
+          <li>How to distinguish the market move and noise in the market?</li>
+          <li>Is there anything valuable from the low value cards?</li>
         </ul>
       </li>
     </ul>
@@ -193,6 +193,7 @@
       In Sutton's repository, the data are scrapped from TCG player using a valid API. The data is about the market of modern and vintage Pokémon card between Feburary and March in 2025. 
       The data sets include over 6000 modern cards, and over 800 vintage cards. For each card, the data include the information not only about the market prices, but also about its Types, Set names, Artists, and other quanlitative features. 
       Since the data sets have been used in a data analysis project in the origina; repository, the data sets are already clean and organized. 
+      <img src="assets/data_set.png" alt="snap shot of dataset" class="result-chart">
     </p>
 
     <h2>Data Overview</h2>
@@ -279,8 +280,8 @@
     <img src="assets/pokemon_eda_charts/01_missing_values.png" alt="missing values" class="result-chart">
     Notice that there are a lot of missing values under the categories TCG High Price USD (Normal), TCG Market Price USD (Recerse Holofoil), TCG Low Price USD (Reverse Holofoil), TCG High Price USD (Reverse Holofoil), TCG Market Price USD (Holofoil), TCG Low Price USD (Holofoil), TCG High Price USD (Holofoil). 
     Normal, holofoil and reverse holofoil refer to the different printing techniques of the card. Normal cards are completely flat and non-reflective, holofoil cards shine only on the artwork, and reverse holofoil cards shine everywhere except the artwork. 
-    If a card has missing value of some print, it simpliy indicates that such product doesn't exist. Since the investors can only purchase the existing product of Pokémon cards, these missing values won't affect our analysis.
-    Also, HP/Types/Attacks are ~17-20% missing only because Trainer/Energy cards don't have them, not a data problem.
+    If a card has missing value of some print, it simpliy indicates that such product doesn't exist. Since the investors can only purchase the existing product of Pokémon cards, these missing values won't affect the analysis.
+    Also, HP/Types/Attacks are ~17-20% missing only because Trainer/Energy cards don't have them, it's not a data problem.
     <img src="assets/Normal_Holo_reveserholo.jpg" alt="missing values" class="result-chart">
     Supertypes, Types of Pokémon, and Rairity, are the major players that can impact the card prices, the following figures demonstrate the distribution of data in these specific categories. 
     About 6/7 of cards in this data set are about Pokémon, about 1/7 of cards are about Trainers, and very few of them are about Evergy. 
