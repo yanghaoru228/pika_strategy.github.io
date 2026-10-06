@@ -85,8 +85,8 @@
 <nav class="tabs" role="tablist" aria-label="Project sections">
   <button class="tab-btn active" role="tab" aria-selected="true" data-tab="introduction">Introduction</button>
   <button class="tab-btn" role="tab" aria-selected="false" data-tab="dataprep">Data Prep</button>
-  <button class="tab-btn" role="tab" aria-selected="false" data-tab="analysis">Analysis</button>
-  <button class="tab-btn" role="tab" aria-selected="false" data-tab="results">Results &amp; Future Works</button>
+  <button class="tab-btn" role="tab" aria-selected="false" data-tab="clustering">Clustering</button>
+  <button class="tab-btn" role="tab" aria-selected="false" data-tab="pca">PCA</button>
   <button class="tab-btn" role="tab" aria-selected="false" data-tab="ref">References</button>
   
 </nav>
@@ -342,76 +342,68 @@
   </section>
 
   <!-- ============================================= -->
-  <!-- TAB 3: Analysis -->
+  <!-- TAB 3: Clustering -->
   <!-- ============================================= -->
-  <section id="analysis" class="tab-panel" role="tabpanel">
-    <h2>Methodology</h2>
+  <section id="clustering" class="tab-panel" role="tabpanel">
+    <h2>Overview</h2>
     <p>
-      <!-- TODO: Explain your cleaning steps, techniques, models, or statistical
-           tests used. -->
-      Placeholder: outline your analysis approach step by step here.
+      Here, describe clustering, including partitional vs, hierarchical. Note the distance metrics used. Discuss how you plan to use clustering to engage in discovery. Have two images. More is fine.
     </p>
-    <ol>
-      <li>TODO — e.g. Data cleaning / handling missing values</li>
-      <li>TODO — e.g. Exploratory data analysis</li>
-      <li>TODO — e.g. Statistical test or model applied</li>
-    </ol>
+
+    <h2>Data Prep</h2>
+    <p>
+      All models and methods require specific data formats. Clustering requires ONLY unlabeled numeric data. Explain this and show an image of the sample of data you plan to use. LINK to the sample of data as well. 
+    </p>
+
+    <h2>Code</h2>
+    <p>
+      Use R or Python to code k-means clustering and to code hierarchical clustering. Use Cosine Similarity as the distance measure for the h-clust.
+    </p>
+
+    <h2>Results</h2>
+    <p>
+      Discuss, illustrate, describe, and visualize the results. Have at least one dendrogram and at least one clustering image (that is not a dendrogram). 
+      What values of k did you use for k - means (you should use at least 3 different k values to compare). 
+      What did the Silhouette method tell you about the "best k". Include a vis of the silhouette results. 
+      Using the hierarchical clustering, how did this compare and coincide with the k-means? What value of k does hclust suggest?
+    </p>
+
+    <h2>Conclusions</h2>
+    <p>
+      What did you learn that pertains to your topic?
+    </p>
+    
   </section>
 
   <!-- ============================================= -->
-  <!-- TAB 4: LIVE PYTHON DEMO (auto-runs via Pyodide) -->
+  <!-- TAB 4: PCA -->
   <!-- ============================================= -->
-  <section id="demo" class="tab-panel" role="tabpanel">
-    <h2>Live Python Demo</h2>
+  <section id="pca" class="tab-panel" role="tabpanel">
+    <h2>Overview</h2>
     <p>
-      This tab runs real Python in your browser (via
-      <a href="https://pyodide.org" target="_blank" rel="noopener">Pyodide</a>).
-      It executes automatically the first time you open this tab.
+      Here, describe PCA. Explain the concept of eigenvalues and eigenvectors, which sit at the heart of PCA. 
+      What is dimensionality reduction and why is reducing the dimensionality of data is important for simplifying analysis and visualization? 
+      Elaborate the challenges posed by high-dimensional data and how dimensionality reduction can help address them. Have two images. More is fine.
     </p>
 
-    <!-- TODO: Replace the contents of the id="python-code" script block below
-         with your own analysis code. Keep type="text/plain" — the script tag
-         is just used to store the code text, it is never executed by the
-         browser directly. -->
-    <script type="text/plain" id="python-code">
-import statistics
-
-# --- Placeholder analysis: replace with your own code ---
-data = [12, 15, 22, 8, 19, 31, 25, 17, 14, 9]
-
-print("Sample data:", data)
-print("Mean:  ", round(statistics.mean(data), 2))
-print("Median:", statistics.median(data))
-print("Stdev: ", round(statistics.stdev(data), 2))
-
-# Need pandas/numpy for your real analysis? Uncomment the two lines below
-# and add the matching loadPackage(...) call in script.js (see comments there).
-# import pandas as pd
-# df = pd.DataFrame({"x": data})
-# print(df.describe())
-    </script>
-
-    <div class="demo-controls">
-      <span id="pyodide-status">Not started</span>
-      <button id="rerun-btn" disabled>Re-run code</button>
-    </div>
-
-    <pre id="python-output" class="code-output">Open this tab to run the Python code…</pre>
-  </section>
-
-  <!-- ============================================= -->
-  <!-- TAB 5: RESULTS & CONCLUSIONS -->
-  <!-- ============================================= -->
-  <section id="results" class="tab-panel" role="tabpanel">
-    <h2>Results &amp; Conclusions</h2>
+    <h2>Data Prep</h2>
     <p>
-      <!-- TODO: Summarize your key findings here. -->
-      Placeholder: summarize what you found and what it means.
+      All models and methods require specific data formats. Explain what kind of data is needed for PCA and show an image of the sample of data you plan to use. LINK to the sample of data as well.
     </p>
-    <img src="assets/placeholder-chart.png" alt="TODO: replace with your chart" class="result-chart">
+
+    <h2>Code</h2>
     <p>
-      <!-- TODO: Add your concluding thoughts, limitations, and future work. -->
-      Placeholder: conclusions and next steps.
+      Use R or Python to code PCA. LINK to the code.
+    </p>
+
+    <h2>Results</h2>
+    <p>
+      Discuss, illustrate, describe, and visualize the results. Understand and explain how to visualize the relationship between variables and principal components. Include at least 2 visualizations for your data.
+    </p>
+
+    <h2>Conclusions</h2>
+    <p>
+      What did you learn that pertains to your topic?
     </p>
   </section>
 
