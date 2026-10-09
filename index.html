@@ -80,8 +80,9 @@
     }
   };
 </script>
+
 <script type="text/javascript" id="MathJax-script" async
-  src="https://jsdelivr.net">
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
 </script>
 
 </head>
@@ -578,8 +579,9 @@
       PCA takes a dataset with many possibly correlated variables and map it in a eigenspace.
       The new axes, called principal components, are chosen so that: 1) The first principal component points in the direction where the data varies the most;
       2) all principal components are orthogonal to each other; 3) the components are uncorrelated with one another.
-      Usually, the first two principal components take account most of the variance, so PCA on a two-dimensional version of the data that keeps most of its structure. 
-
+      Usually, the first two principal components take account most of the variance, so PCA on a two-dimensional version of the data that keeps most of its structure.
+    <\p>
+    <p>
       The PCA follows the following procedure: 1) standardize the data; 2) Compute the covariance matrix Σ; 3) find the eigenvectors and eigenvalues; 4) sort the eigenvectors by eigenvalue, largest first; 
       5) choose the top k eigenvectors; 6) project the data. In practice, PCA is usually computed with Singular Value Decomposition (SVD) of the centered data matrix. It gives the same result and is more numerically stable.
 
