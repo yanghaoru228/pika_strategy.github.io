@@ -355,9 +355,23 @@
       Every clustering method needs two choices. The first is a distance measure tha how close two data points are. 
       The second is a rule for turning those distances into groups. Because features with large ranges would dominate any distance, all features here are standardized to mean 0 and standard deviation 1 before clustering.
       <li><strong> K-means </strong>
+        represents each cluster by its centroid. A point belongs to the cluster whose centroid is nearest. The centroid is the mean of the points assigned to it.
         uses Euclidean distance, which is the straight-line distance between two cards in feature space.
         It is sensitive to magnitude: a card with very high HP and price is far from a card with low values, even if their profiles have the same overall pattern.
-        d_{E}(x, y) = \sqrt{\sum_{i=1}^{n} (x_i - y_i)^2}
+        $$d_{E}(x, y) = \sqrt{\sum_{i=1}^{n} (x_i - y_i)^2}$$
+        K-means pick the number of clusters, k, using the following two ways:
+        <ol>
+          <li><strong> Elbow. </strong> Plot WCSS against k. It always falls as k grows, but the drop flattens once the real groups are covered. The bend (the "elbow") is a sensible k.</li>
+          <li><strong> Silhouette. </strong> For a data point $i$, let $a_i$ be the average distance from point $i$ to all other points in the same cluster,
+          and let $b_i$ be the average distance from point $i$ o all points in the nearest neighboring cluster. The Silhouette score is 
+          $$s_i = \frac{b_i - a_i}{\max (a_i, b_i)} \in [-1,1].$$
+          $s_i$ close to +1 indicates a strong match, around 0 sits on a border, close to -1 is likely is the wrong cluster.
+          The optimal number of clusters (k) is the k with highest average Silhouette score. 
+            
+          </li>
+          
+        </ol>
+        
       </li>
 
       <li><strong> Partitional Clustering </strong>
@@ -366,7 +380,7 @@
 
       <li><strong> Hierarchical Clustering </strong>
         uses cosine distance. It ignores length and compares direction only: two cards are close if their features are high and low in the same places, regardless of how extreme they are.
-        d_{\cos}(x, y) = 1 - \frac{x \cdot y}{\lVert x \rVert \, \lVert y \rVert}
+        $$d_{\cos}(x, y) = 1 - \frac{x \cdot y}{\lVert x \rVert \, \lVert y \rVert}$$
       </li>
 
         
@@ -385,21 +399,42 @@
     <p>
       The data is 5,584 Pokémon cards from TCGplayer price snapshots in February and March 2025, combining 6,345 modern and 868 vintage card records. 
       Trainer and Energy cards were dropped because they have no HP or attacks, as were cards with no price in either month.
+      The numerical features that are used for clustering are listed below. 
     <table>
     <thead>
       <tr>
-        <th>Header 1</th>
-        <th>Header 2</th>
+        <th>Numerical Feature</th>
+        <th>How it is built</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>Row 1, Cell 1</td>
-        <td>Row 1, Cell 2</td>
+        <td>HP</td>
+        <td>Card hit points</td>
       </tr>
       <tr>
-        <td>Row 2, Cell 1</td>
-        <td>Row 2, Cell 2</td>
+        <td>Retreat cost</td>
+        <td>Energy needed to retreat</td>
+      </tr>
+      <tr>
+        <td>Number of attacks</td>
+        <td>Count of attacks on the card</td>
+      </tr>
+      <tr>
+        <td>Max damage</td>
+        <td>Highest damage number among its attacks</td>
+      </tr>
+      <tr>
+        <td>Log price</td>
+        <td>log(1 + March market price)</td>
+      </tr>
+      <tr>
+        <td>Price change</td>
+        <td>March price / Feburuary price - 1</td>
+      </tr>
+      <tr>
+        <td>Card age</td>
+        <td>Years from release data to March 2025</td>
       </tr>
     </tbody>
   </table>
