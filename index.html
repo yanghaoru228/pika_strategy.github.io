@@ -367,9 +367,7 @@
           $$s_i = \frac{b_i - a_i}{\max (a_i, b_i)} \in [-1,1].$$
           $s_i$ close to +1 indicates a strong match, around 0 sits on a border, close to -1 is likely is the wrong cluster.
           The optimal number of clusters (k) is the k with highest average Silhouette score. 
-            
           </li>
-          
         </ol>
         
       </li>
@@ -383,7 +381,19 @@
         $$d_{\cos}(x, y) = 1 - \frac{x \cdot y}{\lVert x \rVert \, \lVert y \rVert}$$
       </li>
 
-        
+      <strong> Using clustering for discovery. </strong>
+      The plan is to use clusters as a map of the card market, then look for cards that do not behave like their group. 
+      <ol>
+          <li><strong> Define market segments. </strong> 
+          Name each cluster by its profile and compare price behavior across segments. This shows whether value is driven by gameplay stats, age, or rarity.
+          </li>
+          <li><strong> Find mispriced cards. </strong> 
+          Within a cluster, cards with similar stats should have similar prices. A card priced well above or below its cluster's median is a candidate for being over- or undervalued.
+          </li>
+          <li><strong> Spot momentum. </strong> 
+          Feb-to-Mar price change is a clustering feature. Cards whose change differs sharply from their cluster's mean change are worth tracking as the next monthly snapshot arrives.
+          </li>  
+        </ol>  
 
       
       
@@ -465,6 +475,7 @@
       <tr>
         <th>Cluster</th>
         <th>Cards</th>
+        <th>Mean HP</th>
         <th>Mean max damage</th>
         <th>Median price (USD)</th>
         <th>Mean age (yrs)</th>
