@@ -569,6 +569,34 @@
   <section id="pca" class="tab-panel" role="tabpanel">
     <h2>Overview</h2>
     <p>
+      PCA takes a dataset with many possibly correlated variables and map it in a eigenspace.
+      The new axes, called principal components, are chosen so that: 1) The first principal component points in the direction where the data varies the most;
+      2) all principal components are orthogonal to each other; 3) the components are uncorrelated with one another.
+      Usually, the first two principal components take account most of the variance, so PCA on a two-dimensional version of the data that keeps most of its structure. 
+
+      The PCA follows the following procedure: 1) standardize the data; 2) Compute the covariance matrix Σ; 3) find the eigenvectors and eigenvalues; 4) sort the eigenvectors by eigenvalue, largest first; 
+      5) choose the top k eigenvectors; 6) project the data. In practice, PCA is usually computed with Singular Value Decomposition (SVD) of the centered data matrix. It gives the same result and is more numerically stable.
+
+      Eigenvalues and eigenvectors are the heart of PCA. For a square matrix A, an eigenvector v is a nonzero vector whose direction does not change when A is applied to it. It only gets stretched or shrunk:
+      $$\mathbf{A}\mathbf{v} = \lambda \mathbf{v}$$
+      The scalar λ is the corresponding eigenvalue. It tells you how much v is stretched.
+
+      When A is the covariance matrix Σ, eigenvectors and eigenvalues have a direct statistical meaning.
+      Eigenvector	is a direction in feature space, i.e. a principal component. Its entries (“loadings”) show how much each original feature contributes to it.
+      Eigenvalue is the variance of the data along that direction, i.e. how much information that component carries. Therefore, the top eigenvector is the direction of maximum variance.
+
+      Dimensionality reduction means transforming data from a high-dimensional space (many features) into a lower-dimensional space while keeping as much meaningful structure as possible.
+      Humans can only see 2 or 3 dimensions. Projecting a 50-feature dataset onto PC1 and PC2 gives a scatter plot where clusters, outliers, and trends often become visible right away.
+      Low-variance components often capture mostly measurement noise. Dropping them and reconstructing the data acts as a denoising filter. Storing k components instead of d features reduces storage. 
+      This is the idea behind “eigenfaces” in image compression and recognition.
+
+      The reason we need the dimensionality reduction method, such as PCA, is the curse of dimensionality, which describes how many things go wrong as the number of features grows.
+      <li><strong> Data becomes sparse. </strong> With a fixed number of samples, high-dimensional space is mostly empty, so every point is effectively isolated.</li>
+      <li><strong> Distances lose their meaning. </strong> 
+      In high dimensions, the distance to a point’s nearest neighbor and to its farthest neighbor become nearly equal. Methods built on distance, such as k-means, struggle because “close” and “far” stop being distinguishable.
+      </li>
+      
+      
       Here, describe PCA. Explain the concept of eigenvalues and eigenvectors, which sit at the heart of PCA. 
       What is dimensionality reduction and why is reducing the dimensionality of data is important for simplifying analysis and visualization? 
       Elaborate the challenges posed by high-dimensional data and how dimensionality reduction can help address them. Have two images. More is fine.
