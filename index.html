@@ -352,13 +352,21 @@
       Because the categories in clustering are automatically discovered partitions of an unlabeled dataset, this process is also called unsupervised learnig. 
       In the following, a couple of common clustering will be discussed, and they will be applied to the Pokémon dataset to produce interpretable results.
 
-      <li><strong> k-mean Clustering </strong>
+      Every clustering method needs two choices. The first is a distance measure tha how close two data points are. 
+      The second is a rule for turning those distances into groups. Because features with large ranges would dominate any distance, all features here are standardized to mean 0 and standard deviation 1 before clustering.
+      <li><strong> K-means </strong>
+        uses Euclidean distance, which is the straight-line distance between two cards in feature space.
+        It is sensitive to magnitude: a card with very high HP and price is far from a card with low values, even if their profiles have the same overall pattern.
+        d_{E}(x, y) = \sqrt{\sum_{i=1}^{n} (x_i - y_i)^2}
       </li>
 
       <li><strong> Partitional Clustering </strong>
+        
       </li>
 
       <li><strong> Hierarchical Clustering </strong>
+        uses cosine distance. It ignores length and compares direction only: two cards are close if their features are high and low in the same places, regardless of how extreme they are.
+        d_{\cos}(x, y) = 1 - \frac{x \cdot y}{\lVert x \rVert \, \lVert y \rVert}
       </li>
 
         
@@ -375,6 +383,26 @@
 
     <h2>Code</h2>
     <p>
+      The data is 5,584 Pokémon cards from TCGplayer price snapshots in February and March 2025, combining 6,345 modern and 868 vintage card records. 
+      Trainer and Energy cards were dropped because they have no HP or attacks, as were cards with no price in either month.
+    <table>
+    <thead>
+      <tr>
+        <th>Header 1</th>
+        <th>Header 2</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Row 1, Cell 1</td>
+        <td>Row 1, Cell 2</td>
+      </tr>
+      <tr>
+        <td>Row 2, Cell 1</td>
+        <td>Row 2, Cell 2</td>
+      </tr>
+    </tbody>
+  </table>
       Use R or Python to code k-means clustering and to code hierarchical clustering. Use Cosine Similarity as the distance measure for the h-clust.
     </p>
 
