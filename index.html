@@ -590,7 +590,7 @@
 
     <p>
       The PCA follows the following procedure: 1) standardize the data; 2) Compute the covariance matrix Σ; 3) find the eigenvectors and eigenvalues; 4) sort the eigenvectors by eigenvalue, largest first; 
-      5) choose the top k eigenvectors; 6) project the data. In practice, PCA is usually computed with Singular Value Decomposition (SVD) of the centered data matrix. It gives the same result and is more numerically stable.
+      5) choose the top k eigenvectors; 6) project the data. 
     
     <p>
       Eigenvalues and eigenvectors are the heart of PCA. For a square matrix A, an eigenvector v is a nonzero vector whose direction does not change when A is applied to it. It only gets stretched or shrunk:
@@ -600,23 +600,32 @@
       When A is the covariance matrix Σ, eigenvectors and eigenvalues have a direct statistical meaning.
       Eigenvector	is a direction in feature space, i.e. a principal component. Its entries (“loadings”) show how much each original feature contributes to it.
       Eigenvalue is the variance of the data along that direction, i.e. how much information that component carries. Therefore, the top eigenvector is the direction of maximum variance.
+      <img src="assets/PC1 PC2.png" alt="PC1PC2" class="result-chart">
 
-    <p>
       Dimensionality reduction means transforming data from a high-dimensional space (many features) into a lower-dimensional space while keeping as much meaningful structure as possible.
       Humans can only see 2 or 3 dimensions. Projecting a 50-feature dataset onto PC1 and PC2 gives a scatter plot where clusters, outliers, and trends often become visible right away.
       Low-variance components often capture mostly measurement noise. Dropping them and reconstructing the data acts as a denoising filter. Storing k components instead of d features reduces storage. 
       This is the idea behind “eigenfaces” in image compression and recognition.
 
+      <p>
       The reason of using the dimensionality reduction method, such as PCA, is the curse of dimensionality, which describes how many things go wrong as the number of features grows.
       <li><strong> Data becomes sparse. </strong> With a fixed number of samples, high-dimensional space is mostly empty, so every point is effectively isolated.</li>
       <li><strong> Distances lose their meaning. </strong> 
       In high dimensions, the distance to a point’s nearest neighbor and to its farthest neighbor become nearly equal. Methods built on distance, such as k-means, struggle because “close” and “far” stop being distinguishable.
       </li>
-      
-      
-      Here, describe PCA. Explain the concept of eigenvalues and eigenvectors, which sit at the heart of PCA. 
-      What is dimensionality reduction and why is reducing the dimensionality of data is important for simplifying analysis and visualization? 
-      Elaborate the challenges posed by high-dimensional data and how dimensionality reduction can help address them. Have two images. More is fine.
+      <li><strong> Overfitting. </strong> 
+      When the number of features approaches or exceeds the number of samples , a model can fit the training data perfectly by memorizing noise. It then generalizes poorly. 
+      Each extra dimension also requires much more data to estimate parameters reliably.
+      </li>
+      <li><strong> Computational cost. </strong> Training time and memory use all grow with dimensionality.
+      </li>
+      <li><strong> Noise accumulation. </strong> Every irrelevant feature adds a little noise. Across hundreds or thousands of features, that noise can drown out the real signal.
+      </li>
+
+      In practice, PCA is usually computed with Singular Value Decomposition (SVD) of the centered data matrix. It gives the same result and is more numerically stable.
+      Every matrix, no matter its shape, can be written as a rotation, then a set of independent stretches, then another rotation. That statement is the singular value decomposition, $A = U \Sigma V^T$. 
+      PCA is not a different machine, it is the SVD applied to mean-subtracted data.
+      <img src="assets/SVD.png" alt="SVD" class="result-chart">
     </p>
 
     <h2>Data Prep</h2>
