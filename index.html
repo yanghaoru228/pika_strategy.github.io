@@ -641,8 +641,11 @@
     <h2>Results</h2>
     <p>
       Two components summarize most of the structure in the card data: PC1 is card power (31% of variance) and PC2 is collectible value (19%). Together they explain 50% of the variance. 
-      Five components are needed to reach 80%. PCA rotates the seven standardized features into new, uncorrelated axes ordered by how much variance each one captures. Unlike clustering, it does not group cards. 
-      It shows which features move together and gives a 2-D view of the data.
+      Five components are needed to reach 80%. 
+      <img src="assets/pca/pca_scree.png" alt="pca" class="result-chart">
+      The loadings are correlations between each feature and each component; values near ±1 mean the feature drives that component. The main contributor of the top 4 principle components are summarized in the following table, 
+      and the interpretation of each component and the highest-scoring cards are included.  
+      <img src="assets/pca/pca_loadings.png" alt="loadings" class="result-chart">
       <div class="table-scroll">
     <table>
     <thead>
@@ -686,6 +689,10 @@
     </tbody>
   </table>
   </div>
+    PCA rotates the seven standardized features into new, uncorrelated axes ordered by how much variance each one captures. Unlike clustering, it does not group cards. It shows which features move together and gives a 2-D view of the data.
+    Each dot is a card on PC1 and PC2; arrows show the direction each feature pulls. The 314 vintage cards (red) sit apart at the top, pulled up by card age and price. 
+    Modern cards (blue) spread left to right along the power axis, with HP, max damage and retreat cost pointing almost the same way.
+    <img src="assets/pca/pca_biplot.png" alt="biplot" class="result-chart">
     </p>
 
     <h2>Conclusions</h2>
