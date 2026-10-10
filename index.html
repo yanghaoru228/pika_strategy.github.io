@@ -382,8 +382,9 @@
         It is sensitive to magnitude: a card with very high HP and price is far from a card with low values, even if their profiles have the same overall pattern.
         K-means pick the number of clusters, k, using the following two ways:
         <ol>
-          <li><strong> Elbow. </strong> Plot WCSS against k. It always falls as k grows, but the drop flattens once the real groups are covered. The bend (the "elbow") is a sensible k.</li>
+          <li><strong> Elbow. </strong> Plot WCSS against k. It always falls as k grows, but the drop flattens once the real groups are covered. The bend (the "elbow") is a sensible k.
           <img src="assets/elbow method.png" alt="elbow method example" class="result-chart">
+          </li>
           <li><strong> Silhouette. </strong> For a data point $i$, let $a_i$ be the average distance from point $i$ to all other points in the same cluster,
           and let $b_i$ be the average distance from point $i$ o all points in the nearest neighboring cluster. The Silhouette score is 
           $$s_i = \frac{b_i - a_i}{\max (a_i, b_i)} \in [-1,1].$$
@@ -397,10 +398,10 @@
         is another unsupervised technique that groups data into a clusters based on similarity. It builds a tree‑like structure (dendrogram) that helps visualize relationships and decide the optimal number of clusters.
         It shows how individual data points or groups of data merge together. The bottom shows each data point as its own group and as we move up, similar groups are combined.
         Height is the distance at which two clusters merged. Low joins are tight groups; tall joins bridge groups that are far apart. Cut the tree with a horizontal line. The number of vertical strands it crosses is the number of clusters. 
-        The cut below sits in the tall gap and gives two clusters: {A,B} and {C,D,E}.
-        <img src="assets/dendrogram.png" alt="dendrogram example" class="result-chart">
-        uses cosine distance. It ignores length and compares direction only: two cards are close if their features are high and low in the same places, regardless of how extreme they are.
+        The cut in the below figure sits in the tall gap and gives two clusters: {A,B} and {C,D,E}.
+        The hierarchical clustering uses cosine distance. It ignores length and compares direction only: two cards are close if their features are high and low in the same places, regardless of how extreme they are.
         $$d_{\cos}(x, y) = 1 - \frac{x \cdot y}{\lVert x \rVert \, \lVert y \rVert}$$
+        <img src="assets/dendrogram.png" alt="dendrogram example" class="result-chart">
       </li>
       </ul>
 
@@ -417,22 +418,13 @@
           Feb-to-Mar price change is a clustering feature. Cards whose change differs sharply from their cluster's mean change are worth tracking as the next monthly snapshot arrives.
           </li>  
         </ol>  
-
-      
-      
-      Here, describe clustering, including partitional vs, hierarchical. Note the distance metrics used. Discuss how you plan to use clustering to engage in discovery. Have two images. More is fine.
     </p>
 
     <h2>Data Prep</h2>
     <p>
-      All models and methods require specific data formats. Clustering requires ONLY unlabeled numeric data. Explain this and show an image of the sample of data you plan to use. LINK to the sample of data as well. 
-    </p>
-
-    <h2>Code</h2>
-    <p>
       The data is 5,584 Pokémon cards from TCGplayer price snapshots in February and March 2025, combining 6,345 modern and 868 vintage card records. 
       Trainer and Energy cards were dropped because they have no HP or attacks, as were cards with no price in either month.
-      The numerical features that are used for clustering are listed below. 
+      The unlabeled numerical features that are used for clustering are listed below. 
     <table>
     <thead>
       <tr>
@@ -471,6 +463,12 @@
       </tr>
     </tbody>
   </table>
+      The data that will be used for clustering analysis can be found here.
+      <img src="assets/cluster data.png" alt="sample data" class="result-chart">
+    </p>
+
+    <h2>Code</h2>
+    <p>
       Use R or Python to code k-means clustering and to code hierarchical clustering. Use Cosine Similarity as the distance measure for the h-clust.
     </p>
 
