@@ -370,18 +370,20 @@
       Partitioning a dataset into different categories is a common way to gathering information. The problem of automatically identifying meaningful groupings in dataset is called clustering. 
       Meaningful groupings can bring interpretation and optimal decisions for each group. In machine learning, this grouping idea is called "clustering".
       Because the categories in clustering are automatically discovered partitions of an unlabeled dataset, this process is also called unsupervised learnig. 
-      In the following, a couple of common clustering will be discussed, and they will be applied to the Pokémon dataset to produce interpretable results.
-
       Every clustering method needs two choices. The first is a distance measure tha how close two data points are. 
       The second is a rule for turning those distances into groups. Because features with large ranges would dominate any distance, all features here are standardized to mean 0 and standard deviation 1 before clustering.
+      In the following, a couple of common clustering will be discussed, and they will be applied to the Pokémon dataset to produce interpretable results.
+
+      <ul>
       <li><strong> K-means </strong>
         represents each cluster by its centroid. A point belongs to the cluster whose centroid is nearest. The centroid is the mean of the points assigned to it.
         uses Euclidean distance, which is the straight-line distance between two cards in feature space.
-        It is sensitive to magnitude: a card with very high HP and price is far from a card with low values, even if their profiles have the same overall pattern.
         $$d_{E}(x, y) = \sqrt{\sum_{i=1}^{n} (x_i - y_i)^2}$$
+        It is sensitive to magnitude: a card with very high HP and price is far from a card with low values, even if their profiles have the same overall pattern.
         K-means pick the number of clusters, k, using the following two ways:
         <ol>
           <li><strong> Elbow. </strong> Plot WCSS against k. It always falls as k grows, but the drop flattens once the real groups are covered. The bend (the "elbow") is a sensible k.</li>
+          <img src="assets/elbow method.png" alt="elbow method example" class="result-chart">
           <li><strong> Silhouette. </strong> For a data point $i$, let $a_i$ be the average distance from point $i$ to all other points in the same cluster,
           and let $b_i$ be the average distance from point $i$ o all points in the nearest neighboring cluster. The Silhouette score is 
           $$s_i = \frac{b_i - a_i}{\max (a_i, b_i)} \in [-1,1].$$
@@ -389,12 +391,18 @@
           The optimal number of clusters (k) is the k with highest average Silhouette score. 
           </li>
         </ol> 
-      </li>
+        </li>
 
       <li><strong> Hierarchical Clustering </strong>
+        is another unsupervised technique that groups data into a clusters based on similarity. It builds a tree‑like structure (dendrogram) that helps visualize relationships and decide the optimal number of clusters.
+        It shows how individual data points or groups of data merge together. The bottom shows each data point as its own group and as we move up, similar groups are combined.
+        Height is the distance at which two clusters merged. Low joins are tight groups; tall joins bridge groups that are far apart. Cut the tree with a horizontal line. The number of vertical strands it crosses is the number of clusters. 
+        The cut below sits in the tall gap and gives two clusters: {A,B} and {C,D,E}.
+        <img src="assets/dendrogram.png" alt="dendrogram example" class="result-chart">
         uses cosine distance. It ignores length and compares direction only: two cards are close if their features are high and low in the same places, regardless of how extreme they are.
         $$d_{\cos}(x, y) = 1 - \frac{x \cdot y}{\lVert x \rVert \, \lVert y \rVert}$$
       </li>
+      </ul>
 
       <strong> Using clustering for discovery. </strong>
       The plan is to use clusters as a map of the card market, then look for cards that do not behave like their group. 
