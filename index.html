@@ -482,17 +482,13 @@
       <img src="assets/clustering/kmeans_k_selection.png" alt="k_selection" class="result-chart">
       At $k=3$, the k-mean clustering is showed below. K-means 0 is rather dense and compact. K-means 1 is dense and compact, but also includes a small fraction of outliers. K-means 2 is more scattered and has less data points.
       <img src="assets/clustering/k-mean clustering.png" alt="k-mean clustering" class="result-chart">
-    <\p>
-
-    <p>
+    
       <strong> Hierarchical tree. </strong>
-      The dendrogram shows the last 30 merges. The three colors are the three clusters at the cut.
+      The dendrogram shows the last 30 merges, numbers on the x-axis in parentheses are card counts. The three colors are the three clusters at the cut.
       The three colors are the three clusters at the cut. The top merge happens near cosine distance 1.2, meaning the main branches point in nearly opposite directions in feature space. 
       The cosine silhouette score at 3 clusters was 0.350.
       <img src="assets/clustering/hclust_dendrogram.png" alt="hclust" class="result-chart">
-    <\p>
-
-    <p>
+      
       <strong> Side-by-side comparison. </strong>
       Each card is plotted on the first two principal components. Colors are assigned separately in each panel.
       K-means (left) cleanly separates the vintage cards at the top. Cosine clustering (right) folds them into a larger lower group.
@@ -572,11 +568,6 @@
     </tbody>
   </table>
   </div>
-    
-      Discuss, illustrate, describe, and visualize the results. Have at least one dendrogram and at least one clustering image (that is not a dendrogram). 
-      What values of k did you use for k - means (you should use at least 3 different k values to compare). 
-      What did the Silhouette method tell you about the "best k". Include a vis of the silhouette results. 
-      Using the hierarchical clustering, how did this compare and coincide with the k-means? What value of k does hclust suggest?
     </p>
 
     <h2>Conclusions</h2>
@@ -596,11 +587,12 @@
       The new axes, called principal components, are chosen so that: 1) The first principal component points in the direction where the data varies the most;
       2) all principal components are orthogonal to each other; 3) the components are uncorrelated with one another.
       Usually, the first two principal components take account most of the variance, so PCA on a two-dimensional version of the data that keeps most of its structure.
-    <\p>
+
     <p>
       The PCA follows the following procedure: 1) standardize the data; 2) Compute the covariance matrix Σ; 3) find the eigenvectors and eigenvalues; 4) sort the eigenvectors by eigenvalue, largest first; 
       5) choose the top k eigenvectors; 6) project the data. In practice, PCA is usually computed with Singular Value Decomposition (SVD) of the centered data matrix. It gives the same result and is more numerically stable.
-
+    
+    <p>
       Eigenvalues and eigenvectors are the heart of PCA. For a square matrix A, an eigenvector v is a nonzero vector whose direction does not change when A is applied to it. It only gets stretched or shrunk:
       $$\mathbf{A}\mathbf{v} = \lambda \mathbf{v}$$
       The scalar λ is the corresponding eigenvalue. It tells you how much v is stretched.
@@ -609,12 +601,13 @@
       Eigenvector	is a direction in feature space, i.e. a principal component. Its entries (“loadings”) show how much each original feature contributes to it.
       Eigenvalue is the variance of the data along that direction, i.e. how much information that component carries. Therefore, the top eigenvector is the direction of maximum variance.
 
+    <p>
       Dimensionality reduction means transforming data from a high-dimensional space (many features) into a lower-dimensional space while keeping as much meaningful structure as possible.
       Humans can only see 2 or 3 dimensions. Projecting a 50-feature dataset onto PC1 and PC2 gives a scatter plot where clusters, outliers, and trends often become visible right away.
       Low-variance components often capture mostly measurement noise. Dropping them and reconstructing the data acts as a denoising filter. Storing k components instead of d features reduces storage. 
       This is the idea behind “eigenfaces” in image compression and recognition.
 
-      The reason we need the dimensionality reduction method, such as PCA, is the curse of dimensionality, which describes how many things go wrong as the number of features grows.
+      The reason of using the dimensionality reduction method, such as PCA, is the curse of dimensionality, which describes how many things go wrong as the number of features grows.
       <li><strong> Data becomes sparse. </strong> With a fixed number of samples, high-dimensional space is mostly empty, so every point is effectively isolated.</li>
       <li><strong> Distances lose their meaning. </strong> 
       In high dimensions, the distance to a point’s nearest neighbor and to its farthest neighbor become nearly equal. Methods built on distance, such as k-means, struggle because “close” and “far” stop being distinguishable.
