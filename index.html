@@ -640,7 +640,52 @@
 
     <h2>Results</h2>
     <p>
-      Discuss, illustrate, describe, and visualize the results. Understand and explain how to visualize the relationship between variables and principal components. Include at least 2 visualizations for your data.
+      Two components summarize most of the structure in the card data: PC1 is card power (31% of variance) and PC2 is collectible value (19%). Together they explain 50% of the variance. 
+      Five components are needed to reach 80%. PCA rotates the seven standardized features into new, uncorrelated axes ordered by how much variance each one captures. Unlike clustering, it does not group cards. 
+      It shows which features move together and gives a 2-D view of the data.
+      <div class="table-scroll">
+    <table>
+    <thead>
+      <tr>
+        <th>Component</th>
+        <th>Variance</th>
+        <th>Driven by</th>
+        <th>Interpretation</th>
+        <th>Highest-scoring cards</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>PC1</td>
+        <td>31%</td>
+        <td>HP (0.88), max damage (0.88), retreat cost (0.63)</td>
+        <td>Card power: big, hard-hitting cards score high</td>
+        <td>Charizard VMAX, Charizard ex, Zacian V-UNION</td>
+      </tr>
+      <tr>
+        <td>PC2</td>
+        <td>19%</td>
+        <td>Card age (0.83), log price (0.77)</td>
+        <td>Collectible value: older cards are worth more</td>
+        <td>Vintage Charizard, Mewtwo, Eevee, Charmander</td>
+      </tr>
+      <tr>
+        <td>PC3</td>
+        <td>14%</td>
+        <td>Price change (0.74), # attacks (−0.62)</td>
+        <td>Price momentum, mostly in one-attack cards</td>
+        <td>-</td>
+      </tr>
+      <tr>
+        <td>PC3</td>
+        <td>14%</td>
+        <td># attacks (0.67), price change (0.67)</td>
+        <td>Mix of the same two features as PC3</td>
+        <td>-</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
     </p>
 
     <h2>Conclusions</h2>
