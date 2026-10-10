@@ -572,7 +572,43 @@
 
     <h2>Conclusions</h2>
     <p>
-      What did you learn that pertains to your topic?
+      The k-means clustering found three clear, stable groups in the card market (vintage, modern heavy hitters, modern commons), and it showed that collector value follows age much more than gameplay power.
+      The earlier goal of applying the clustering analysis aims to answer the questions: 1) define market segments; 2) find mispriced cards; 3) spot momentum. Unfortunately, the analysis can only partially answer the first question.
+      The three k-means clusters are clear and easy to name, and their prices differ a lot:
+      <table>
+    <thead>
+      <tr>
+        <th>Cluster</th>
+        <th>Cards</th>
+        <th>Median price (USD)</th>
+        <th>Mean Feb to Mar change</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Modern low-power</td>
+        <td>3313</td>
+        <td>0.20</td>
+        <td>+2.6%</td>
+      </tr>
+      <tr>
+        <td>Vintage</td>
+        <td>314</td>
+        <td>13.22</td>
+        <td>+2.9%</td>
+      </tr>
+      <tr>
+        <td>Modern heavy hitters</td>
+        <td>1957</td>
+        <td>1.44</td>
+        <td>+4.1%</td>
+      </tr>
+      </tbody>
+  </table>
+    Age matters most among the clustered features. Vintage cards cost about 65 times more than modern low-power cards, even though their stats are weaker.
+    Gameplay stats matter a little. Heavy hitters cost about 7 times more than low-power modern cards.
+    Rarity matters most, but it wasn’t in the clustering. Rarity alone explains 49% of the variation in (log) price. The clusters explain only 23% (k-means) and 12% (hierarchical). Stats alone explain 25%, and stats plus rarity explain 63%.
+    However, the clustering didn't answer the question 2) and 3), because price depends mostly on rarity and popularity, which weren’t clustering features, and because one month of data can’t show a trend.
     </p>
     
   </section>
