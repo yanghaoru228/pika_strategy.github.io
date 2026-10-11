@@ -478,8 +478,13 @@
     <p>
       <strong> Choosing k for k-means. </strong> 
       The elbow curve has no sharp bend, so the optimal k cannot be explicitly determined from this method, which suggests the groups overlap rather than separate cleanly.
-      The Sihouette score peak at k = 3, so three clusters were used for the following methods.
+      The Sihouette score peak at k = 3, so it suggests that the number of clusters should be 3. However, because the elbow method and Sihouette method didn't agree, it is necessary to use the third method to verify.
       <img src="assets/clustering/kmeans_k_selection.png" alt="k_selection" class="result-chart">
+      The gap-statistic method is another common way to determine the optimal k, where the optimal k has the peak gap-statistic. Plot the k against the gap-statistic gives:
+      <img src="assets/clustering/kmeans_gap_statistic2.png" alt="k_selection_gap" class="result-chart">
+      The gap keeps rising from k = 1 to k = 20. It never peaks. The rule is first met at k = 15, and only by +0.006, which is about the size of the simulation noise.
+      the gap statistic found no clear stopping point, which shows the market is a continuum rather than well-separated groups. The biggest structural gain is at k = 3, matching the silhouette score, so k = 3 is kept.
+      
       At $k=3$, the k-mean clustering is showed below. K-means 0 is rather dense and compact. K-means 1 is dense and compact, but also includes a small fraction of outliers. K-means 2 is more scattered and has less data points.
       <img src="assets/clustering/k-mean clustering.png" alt="k-mean clustering" class="result-chart">
     
