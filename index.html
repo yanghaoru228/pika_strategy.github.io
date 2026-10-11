@@ -745,6 +745,13 @@
       The card data has two main dimensions, gameplay power and collectible value, and they are nearly independent. Month-to-month price change sits outside both, so the PCA confirms it can’t be explained by the card features we have.
       Two components capture 50% of the information in the seven variables. Three pass the eigenvalue-above-1 rule, and five are needed to reach 80%. 
       The features are only loosely correlated, so PCA can summarize them but not collapse them into one or two numbers without losing a lot.
+
+      <strong>What this means for next steps:</strong>
+      <ol>
+          <li>Collector value depends on age (and rarity), not gameplay. Any price model needs rarity and era as inputs, not just stats.</li>
+          <li>Drop one of HP or max damage before clustering again, or cluster on the first 3–5 PC scores. Otherwise power is double-counted.</li>
+          <li>Price movement needs its own analysis with more monthly snapshots. The current features can’t explain it.</li>  
+        </ol> 
     </p>
   </section>
 
