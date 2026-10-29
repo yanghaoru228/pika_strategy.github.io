@@ -875,7 +875,19 @@
   <!-- ============================================= -->
   <section id="naivebayes" class="tab-panel active" role="tabpanel">
     <h2>Overview</h2>
+    <p>A decision tree is a supervised model that predicts a label by asking a sequence of yes/no questions about the features. Each internal node tests one feature against a threshold ("is the rarity tier above 4?"), each branch is an answer, 
+      and each leaf holds a prediction: the majority class of the training rows that ended up there (for classification).</p>
+  
+    <p><b>Gini, Entropy and Information Gain.</b>To grow a tree, the algorithm has to decide which question to ask at each node. It tries every feature and every candidate threshold and keeps the split whose children are the most "pure", 
+      meaning each child is dominated by one class. Gini impurity and entropy are two ways to put a number on impurity; information gain measures how much a split reduces it. The follwoing are the formulas, where $p_i = $ share of class $i$ in a node.</p>
+      $$\text{Gini(node) } = 1 − \sum_i p_i^2, \qquad 0 = \text{pure}, \quad 0.667 \text{ max for 3 classes}$$
+      $$\text{Entropy(node)} = − \sum_i p_i · \log_2 p_i, \qquad 0 = \text{pure}, \quad 1.585 \text{max for 3 classes}$$
+      $$\text{Gain(split) } = \text{Impurity(parent) } − \sum_k (n_k / n) \cdot \text{Impurity(child_k)}$$
 
+</div>
+    <p>Both measures are zero when a node holds a single class and largest when the classes are evenly mixed. Gini is slightly cheaper to compute (no logarithm) and is scikit-learn's default; entropy comes from information theory and penalizes mixed nodes a little more sharply. In practice they usually pick the same or very similar splits. The weighted average in the gain formula matters: a split that creates one tiny pure child and one huge mixed child should not score well, so each child counts in proportion to its size.</p>
+  </div>
+    
   </section>
 
 </main>
