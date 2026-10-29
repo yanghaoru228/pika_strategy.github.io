@@ -996,7 +996,13 @@
       <tr><td>Tree 4</td><td>Gini</td><td>no depth limit</td><td class="n">618</td><td class="n">99.8%</td><td class="n">86.2%</td><td class="n">76%</td></tr>
     </tbody>
   </table>
-    
+    <p><b>Tree 1: Gini, depth 3</b> The smallest tree is the easiest to read. Its first question is whether a card is sold in more than one printing. Commons and uncommons almost always come in normal and reverse-holo versions, and 95% of those are Low. 
+      Among those multi-printing cards, anything older than 13.9 years (the vintage sets) goes straight to a pure High leaf of 77 cards. On the single-printing side it uses rarity and age, but every one of those leaves predicts Mid. 
+      That makes Tree 1 cautious: it never confuses Low with High, yet it catches only 29 of the 185 High test cards.</p>
+    <p><b>Tree 2: Entropy, depth 6 (best)</b> Allowing three more levels lets the tree separate modern chase cards from ordinary ultra rares. Below the first split it uses rarity tier (Special Illustration, Hyper and Secret rares vs. regular ultras), 
+      how recently the card came out, the Pokémon's Dex number and popularity, and the vintage flag. High recall rises from 16% to 65% while overall accuracy reaches 86.5%, and training and test accuracy are almost identical, so this tree is not overfitting.</p>
+    <p><b>Tree 3: Gini, depth 4, without rarity</b> This tree tests what the model can learn when the official rarity is hidden. It recovers most of the signal from <code>set_position</code>: cards numbered past about 69% of their set's highest number are the full-art and secret slots. 
+      It then uses Pokémon popularity and Dex number to pick out the High cards: a frequently printed Pokémon from the first three generations (Dex number ≤ 292) in a late set slot is predicted High. Accuracy is 80.6%, only half a point below Tree 1, which had rarity available.</p>
   <h2>Conclusion</h2>
     
     
