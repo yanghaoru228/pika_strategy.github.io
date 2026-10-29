@@ -861,7 +861,7 @@
 <p>Next is to splitting the dataset into a training set and testing set. </p>
 <ul>
   <li><b>Training Set (70%, 4683 cards)</b> is the only data the model sees while learning its priors and likelihoods.</li>
-  <li><b>Testing Set (2,008 cards)</b> is held back and used once, to measure accuracy on cards the model has never seen.</li>
+  <li><b>Testing Set (30%, 2008 cards)</b> is held back and used once, to measure accuracy on cards the model has never seen.</li>
   <li><b>Stratified</b> sampling keeps the Low / Mid / High mix the same in both sets, which matters here because High cards are only about 11% of the data.</li>
 </ul>
 <h2>Code</h2>
@@ -977,6 +977,16 @@
         <tr><td><code>pokedex_no</code></td><td>Pokedex Number</td><td>National Dex number (0 if not a Pokémon)</td></tr>
       </tbody>
     </table></div>
+    <p>Next is to splitting the dataset into a training set and testing set. </p>
+  <ul>
+    <li><b>Training Set (75%, 5018 cards)</b>  A tree that is scored on cards it trained on is being asked about answers it has already memorized, so the score says nothing about new cards. </li>
+    <li><b>Testing Set (25%, 1673 cards)</b> This is a disjoint set from the training set. Only the test score is an honest estimate of how the model will do on cards it has never seen.</li>
+    <li><b>Stratified</b> sampling keeps the Low / Mid / High mix the same in both sets, which matters here because High cards are only about 11% of the data.</li>
+  </ul>
+
+  <h2>Code</h2>
+  <h2>Results</h2>
+  <h2>Conclusion</h2>
     
     
     
