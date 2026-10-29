@@ -850,6 +850,14 @@
       </tr>
     </tbody>
   </table>
+    <p>Converting every feature to non-negative counts is also necessary. Python's <code>sklearn.naive_bayes.MultinomialNB</code> accepts only numeric, non-negative values, which it treats as counts. Mixed text and numbers have to be converted first:</p>
+    <ul>
+  <li><b>One-hot (0/1) columns</b> for Era, Supertype, energy Type, Rarity, and release year.</li>
+  <li><b>Multi-hot columns</b> for Subtypes, since one card can be several at once ("Basic, V" sets both <code>sub_Basic</code> and <code>sub_V</code>).</li>
+  <li><b>Binned one-hot columns</b> for HP and for the largest attack damage. Raw HP values like 330 would otherwise outweigh every 0/1 feature in a count-based model.</li>
+  <li><b>Small integer counts</b> for number of attacks and retreat cost (0 to 5).</li>
+</ul>
+<p>Name, ID, artist, image links, and the price columns were left out. ID and name are identifiers, not attributes. The price columns are where the label came from, so including them would leak the answer into the features.</p>
   </section>
 
 </main>
