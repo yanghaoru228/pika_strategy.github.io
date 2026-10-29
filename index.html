@@ -763,16 +763,93 @@
     <p>
       Naïve Bayes (NB) is a family of supervised classifiers built on Bayes' theorem. Given a record with features $x = (x_1, x_2, ..., x_n)$, it asks: for each possible class $C$, how probable is that class given what we see? 
       It then predicts the class with the highest probability.
-    </p>
-    <div class="formula"> 
-      P(C | x) = P(C) · P(x | C) / P(x)
-      Naïve assumption:  P(x | C) = P(x₁ | C) · P(x₂ | C) · … · P(xₙ | C)
-      Prediction:        ŷ = argmax_C  [ log P(C) + Σᵢ log P(xᵢ | C) ]
-    </div>
-    <p>
+      $$P(C | x) = P(C) · P(x | C) / P(x)$$
+      $$\text{Naive assumption:}  P(x | C) = P(x_1 | C) · P(x_2 | C) \cdot … \cdot P(x_n | C)$$
+      $$\text{Prediction:} \hat{y} = argmax_C  [ log P(C) + Σ_i log P(x_i | C) ]$$
       The "naive" part is the assumption that every feature is <b>conditionally independent</b> of the others once the class is known. That is rarely true. A card's rarity and its subtype (VMAX, ex) clearly move together. 
       Even so, NB works well in practice because it only needs the correct class to come out on top, not perfectly calibrated probabilities. The model trains in one pass by counting, needs little data, scales to thousands of features, and its learned probabilities are easy to read.
     </p>
+    <p>
+      $P(C)$ is the <i>prior</i>: how common each class is in the training data. $P(x_i | C)$ is the <i>likelihood</i> of a feature within a class. Working in log space avoids multiplying many tiny probabilities into numeric underflow.
+    </p>
+    <p>
+      NB can be used for the following applications:
+      <ul>
+        <li><b>Text classification:</b> spam filtering, sentiment analysis, topic and news tagging, where documents become word-count vectors.</li>
+        <li><b>Fast baselines</b> for any categorical or count-based classification problem before trying heavier models.</li>
+        <li><b>Recommendation and filtering</b> (for example, "will this user like this item").</li>
+        <li><b>Medical and risk screening</b> from symptom or attribute checklists.</li>
+        <li>Here: <b>price-tier prediction</b> for trading cards from their attributes.</li>
+      </ul>
+    </p>
+    <h3>Multinomial vs. Bernoulli Naïve Bayes</h3>
+    <p>The variants differ in how they model P(xᵢ | C), and so in what kind of data they accept.</p>
+    <table>
+    <thead>
+      <tr>
+        <th> </th>
+        <th>Multinomial NB</th>
+        <th>Bernoulli NB</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Feature type</td>
+        <td>Non-negative counts or frequencies</td>
+        <td>Binary: yes (1) or no (0)</td>
+      </tr>
+      <tr>
+        <td>Likelihood</td>
+        <td>$P(x_i|C) = (N_{C_i} + \alpha) / (N_C + \alpha \cdot n)$</td>
+        <td>$P(x|C) = \prod_i p_i^{x_i} \cdot (1-p_i)^{1-x_i}$</td>
+      </tr>
+      <tr>
+        <td>Typical use</td>
+        <td>Word counts in long documents, counted-encoded attributes</td>
+        <td>Yes/no checklist, word presence</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>In the Multinomial formula, $N_{C_i}$ is the total count of feature $i$ in class $C$, $N_C$ is the total of all feature counts in $C$, 
+    and $n$ is the number of features. In the Bernoulli formula, $p_i$ is the fraction of class-$C$ records in which feature $i$ is present.</p>
+  <p><b>Laplace smoothing (α).</b> If a feature never appears with a class in training, its raw likelihood is 0, and that single zero wipes out the whole product. Adding $\alpha$ (here $\alpha = 1$) to every count keeps every probability above zero. 
+    Both models in this tab use α = 1.</p>
+
+  <h2>Data Prep</h2>
+  <p>Supervised learning needs labeled data. Each record must carry the correct answer (the label) so the model can learn which feature patterns go with which class. Rows without a label cannot be used to train or to test, because there is nothing to learn from or check against.</p>
+  <p>The dataset includes the information about 7213 cards in total, and there are 522 cards had no market price at all.
+    The value of the cards is the main interest of this project, hence the labeling is based on the market price, so the cards with no market price were dropped before modeling. 
+    That leaves 6691 labeled cards.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Price Tier</th>
+        <th>Rule</th>
+        <th>Cards Number</th>
+        <th>Proportion</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Low</td>
+        <td>< $1</td>
+        <td>4169</td>
+        <td>62.3%</td>
+      </tr>
+      <tr>
+        <td>Mid</td>
+        <td>>= $1 and < $10</td>
+        <td>1767</td>
+        <td>26.4%</td>
+      </tr>
+      <tr>
+        <td>High</td>
+        <td>>= $10</td>
+        <td>755</td>
+        <td>11.3%</td>
+      </tr>
+    </tbody>
+  </table>
   </section>
 
 </main>
