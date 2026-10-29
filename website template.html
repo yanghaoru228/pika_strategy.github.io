@@ -1,0 +1,416 @@
+<title>Pokémon Card Decision Trees</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chivo:wght@500;700;800&family=Literata:opsz,wght@7..72,400;7..72,600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: single reading column (~720px) with wider figure bands; sticky a–e section bar */
+:root {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --fg: #16191f;
+  --muted: #535a66;
+  --rule: #dfe3ea;
+  --accent: #2a78d6;
+  --accent-soft: #e6effb;
+  --low: #2a78d6; --mid: #eb6834; --high: #1baf7a;
+  --code-bg: #eef1f5;
+  --display: "Chivo", "Helvetica Neue", Arial, sans-serif;
+  --body: "Literata", Georgia, "Times New Roman", serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12151a; --surface: #1a1e25; --fg: #e9ecf1; --muted: #a3abb8; --rule: #2c323c;
+  --accent: #5b9be8; --accent-soft: #1d2d44; --low: #3987e5; --mid: #d95926; --high: #199e70;
+  --code-bg: #20252e; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #12151a; --surface: #1a1e25; --fg: #e9ecf1; --muted: #a3abb8; --rule: #2c323c;
+  --accent: #5b9be8; --accent-soft: #1d2d44; --low: #3987e5; --mid: #d95926; --high: #199e70;
+  --code-bg: #20252e; color-scheme: dark }
+
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 17px; line-height: 1.65; }
+.wrap { max-width: 1060px; margin: 0 auto; padding-block: 0 80px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.col { max-width: 720px; }
+header.top { padding-block: 48px 28px; }
+.eyebrow { font-family: var(--display); font-weight: 700; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+h1 { font-family: var(--display); font-weight: 800; font-size: clamp(32px, 5vw, 48px); line-height: 1.08; margin: 8px 0 14px; text-wrap: balance; }
+.lede { font-size: 19px; color: var(--muted); max-width: 680px; margin: 0; }
+.qbox { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; font-family: var(--display); font-size: 14px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); font-family: var(--display); font-size: 13px; font-weight: 500; white-space: nowrap; }
+.chip i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.chip.low i { background: var(--low) } .chip.mid i { background: var(--mid) } .chip.high i { background: var(--high) }
+
+nav.sec { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--rule); margin-bottom: 8px; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+nav.sec ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 4px; overflow-x: auto; }
+nav.sec a { display: block; padding: 12px 12px; font-family: var(--display); font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; white-space: nowrap; border-bottom: 2px solid transparent; }
+nav.sec a:hover, nav.sec a:focus-visible { color: var(--fg); border-bottom-color: var(--accent); outline: none; }
+nav.sec a b { color: var(--accent); margin-right: 4px; }
+
+section { padding-top: 48px; scroll-margin-top: 56px; }
+h2 { font-family: var(--display); font-weight: 800; font-size: 30px; line-height: 1.15; margin: 0 0 16px; display: flex; gap: 12px; align-items: baseline; }
+h2 .letter { font-size: 16px; color: var(--accent); font-weight: 700; border: 1.5px solid var(--accent); border-radius: 6px; padding: 0 7px; }
+h3 { font-family: var(--display); font-weight: 700; font-size: 20px; margin: 34px 0 8px; text-wrap: balance; }
+p { margin: 0 0 14px; }
+a { color: var(--accent); }
+code, .mono { font-family: var(--mono); font-size: .86em; }
+p code, li code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+ul.plain { padding-left: 20px; margin: 0 0 14px; } ul.plain li { margin-bottom: 6px; }
+
+figure { margin: 26px 0; }
+figure img { display: block; width: 100%; height: auto; background: #fff; border: 1px solid var(--rule); border-radius: 6px; }
+figure.scroll { overflow-x: auto; }
+figure.scroll img { width: auto; max-width: none; height: auto; }
+figcaption { font-family: var(--display); font-size: 13.5px; color: var(--muted); margin-top: 8px; line-height: 1.5; max-width: 720px; }
+figcaption b { color: var(--fg); }
+.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 22px; }
+.pair figure { margin: 0; min-width: 0; }
+
+.math { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 18px 20px; margin: 18px 0; overflow-x: auto; }
+.math .f { font-family: var(--mono); font-size: 14px; line-height: 1.8; white-space: pre; }
+.math h4 { font-family: var(--display); font-size: 14px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+.tbl { overflow-x: auto; margin: 16px 0 20px; }
+table { border-collapse: collapse; font-family: var(--display); font-size: 14px; font-variant-numeric: tabular-nums; min-width: 100%; }
+th, td { text-align: left; padding: 7px 12px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+th { font-weight: 700; color: var(--muted); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+td.n { text-align: right; } th.n { text-align: right; }
+tr.best td { background: var(--accent-soft); }
+
+.links { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; margin: 18px 0 24px; }
+.links a { display: block; padding: 12px 14px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); text-decoration: none; color: var(--fg); font-family: var(--display); font-size: 14px; line-height: 1.4; }
+.links a:hover, .links a:focus-visible { border-color: var(--accent); outline: none; }
+.links a span { display: block; color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+.links a b { color: var(--accent); }
+
+pre.code { background: var(--code-bg); border-radius: 8px; padding: 16px 18px; overflow-x: auto; font-family: var(--mono); font-size: 13px; line-height: 1.6; margin: 14px 0 20px; }
+pre.code .c { color: var(--muted); }
+.callout { border-left: 3px solid var(--accent); padding: 4px 0 4px 16px; margin: 18px 0; color: var(--fg); }
+.takeaways { display: grid; gap: 14px; margin: 18px 0; }
+.takeaways div { padding: 14px 16px; background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; }
+.takeaways b { font-family: var(--display); display: block; margin-bottom: 4px; }
+svg text { font-family: var(--display); }
+@media (max-width: 520px) { body { font-size: 16px; } h2 { font-size: 25px; } }
+</style>
+
+<div class="wrap">
+<header class="top col">
+  <div class="eyebrow">Supervised learning · Decision Trees</div>
+  <h1>Can a tree tell a $0.20 card from a $20 one?</h1>
+  <p class="lede">Using TCGplayer market prices for 7,213 Pokémon cards (modern Sword &amp; Shield / Scarlet &amp; Violet era and vintage 1999–2002 sets), I trained decision trees to sort each card into a price tier from its printed attributes alone.</p>
+  <div class="qbox">Target label:
+    <span class="chip low"><i></i>Low · ≤ $1</span>
+    <span class="chip mid"><i></i>Mid · $1–$10</span>
+    <span class="chip high"><i></i>High · &gt; $10</span>
+  </div>
+</header>
+
+<nav class="sec" aria-label="Sections">
+  <ul>
+    <li><a href="#overview"><b>a</b>Overview</a></li>
+    <li><a href="#dataprep"><b>b</b>Data Prep</a></li>
+    <li><a href="#code"><b>c</b>Code</a></li>
+    <li><a href="#results"><b>d</b>Results</a></li>
+    <li><a href="#conclusions"><b>e</b>Conclusions</a></li>
+  </ul>
+</nav>
+
+<!-- ============================ (a) OVERVIEW ============================ -->
+<section id="overview">
+  <div class="col">
+    <h2><span class="letter">a</span>Overview</h2>
+    <p>A decision tree is a supervised model that predicts a label by asking a sequence of yes/no questions about the features. Each <b>internal node</b> tests one feature against a threshold ("is the rarity tier above 4?"), each <b>branch</b> is an answer, and each <b>leaf</b> holds a prediction: the majority class of the training rows that ended up there (for classification) or their average (for regression trees).</p>
+    <p>Trees are used for classification (spam or not, which price tier), regression (predicting a price directly), and as the building block of stronger ensembles such as Random Forests and gradient-boosted trees. Their biggest strength is that they are readable. Anyone can follow a path from the root to a leaf and see exactly why a card was labeled "High". They also handle mixed feature types, need no scaling, and capture interactions automatically, since a question asked lower in the tree only applies to the cards that reached that branch.</p>
+  </div>
+
+  <figure>
+    <div style="overflow-x:auto">
+    <svg viewBox="0 0 760 330" width="100%" style="min-width:560px;display:block" role="img" aria-label="Anatomy of a decision tree for a Pokémon card">
+      <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker></defs>
+      <rect x="0" y="0" width="760" height="330" fill="var(--surface)" rx="8"/>
+      <g stroke="var(--muted)" stroke-width="1.5" fill="none" marker-end="url(#ar)">
+        <path d="M380 72 L210 140"/><path d="M380 72 L550 140"/>
+        <path d="M210 186 L120 252"/><path d="M210 186 L300 252"/>
+        <path d="M550 186 L460 252"/><path d="M550 186 L640 252"/>
+      </g>
+      <g font-size="12" fill="var(--muted)"><text x="268" y="98">yes</text><text x="472" y="98">no</text>
+        <text x="140" y="222">yes</text><text x="262" y="222">no</text><text x="478" y="222">yes</text><text x="602" y="222">no</text></g>
+      <rect x="270" y="30" width="220" height="44" rx="8" fill="var(--accent-soft)" stroke="var(--accent)"/>
+      <text x="380" y="57" text-anchor="middle" font-size="14" font-weight="700" fill="var(--fg)">Only one printing (holo only)?</text>
+      <rect x="110" y="142" width="200" height="44" rx="8" fill="var(--accent-soft)" stroke="var(--accent)"/>
+      <text x="210" y="169" text-anchor="middle" font-size="14" font-weight="700" fill="var(--fg)">Rarity tier ≥ Ultra Rare?</text>
+      <rect x="450" y="142" width="200" height="44" rx="8" fill="var(--accent-soft)" stroke="var(--accent)"/>
+      <text x="550" y="169" text-anchor="middle" font-size="14" font-weight="700" fill="var(--fg)">Older than 14 years?</text>
+      <g font-size="14" font-weight="700" fill="#fff">
+        <rect x="70" y="254" width="100" height="36" rx="18" fill="var(--mid)"/><text x="120" y="277" text-anchor="middle">Mid</text>
+        <rect x="250" y="254" width="100" height="36" rx="18" fill="var(--mid)"/><text x="300" y="277" text-anchor="middle">Mid</text>
+        <rect x="410" y="254" width="100" height="36" rx="18" fill="var(--high)"/><text x="460" y="277" text-anchor="middle">High</text>
+        <rect x="590" y="254" width="100" height="36" rx="18" fill="var(--low)"/><text x="640" y="277" text-anchor="middle">Low</text>
+      </g>
+      <g font-size="12" fill="var(--muted)" font-weight="500">
+        <text x="500" y="44">← root node (best first split)</text>
+        <text x="660" y="160">← internal node</text>
+        <text x="20" y="316">leaves = predicted price tier</text>
+      </g>
+    </svg>
+    </div>
+    <figcaption><b>Figure 1.</b> Anatomy of a decision tree, using questions the real model in section (d) actually learned. A card enters at the root and follows one path down to a leaf.</figcaption>
+  </figure>
+
+  <figure>
+    <img src="img/decision_regions.png" alt="Scatter of training cards by rarity tier and age, with shaded rectangles showing a depth-3 tree's predicted tier" loading="lazy">
+    <figcaption><b>Figure 2.</b> What a tree does geometrically. Fit on only two features (rarity tier and card age), a depth-3 tree carves the space into axis-aligned rectangles and gives each one a label. Old holo rares (rarity 3, &gt;5 years) become a High region; modern ultra and secret rares (4–6) land in Mid, where High and Mid cards are badly mixed. That mixing is what impurity measures.</figcaption>
+  </figure>
+
+  <div class="col">
+    <h3>Gini, Entropy and Information Gain</h3>
+    <p>To grow a tree, the algorithm has to decide which question to ask at each node. It tries every feature and every candidate threshold and keeps the split whose children are the most "pure", meaning each child is dominated by one class. Gini impurity and entropy are two ways to put a number on impurity; information gain measures how much a split reduces it.</p>
+    <div class="math">
+      <h4>Formulas (p<sub>i</sub> = share of class i in a node)</h4>
+      <div class="f">Gini(node)    = 1 − Σ pᵢ²                 0 = pure, 0.667 max for 3 classes
+Entropy(node) = − Σ pᵢ · log₂ pᵢ           0 = pure, 1.585 max for 3 classes
+Gain(split)   = Impurity(parent) − Σ (nₖ / n) · Impurity(childₖ)</div>
+    </div>
+    <p>Both measures are zero when a node holds a single class and largest when the classes are evenly mixed. Gini is slightly cheaper to compute (no logarithm) and is scikit-learn's default; entropy comes from information theory and penalizes mixed nodes a little more sharply. In practice they usually pick the same or very similar splits. The weighted average in the gain formula matters: a split that creates one tiny pure child and one huge mixed child should not score well, so each child counts in proportion to its size.</p>
+  </div>
+
+  <figure class="col">
+    <img src="img/gini_vs_entropy.png" alt="Line chart comparing Gini impurity and entropy across class proportions" loading="lazy">
+    <figcaption><b>Figure 3.</b> Gini and entropy for a two-class node. Same shape, different scale.</figcaption>
+  </figure>
+
+  <div class="col">
+    <h3>Worked example: which question splits ten cards better?</h3>
+    <p>Take ten cards: 5 are High and 5 are Low. Compare two candidate questions.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Node</th><th class="n">Cards</th><th class="n">High / Low</th><th class="n">Gini</th><th class="n">Entropy</th></tr></thead>
+      <tbody>
+        <tr><td>Parent (all ten)</td><td class="n">10</td><td class="n">5 / 5</td><td class="n">1 − (.5² + .5²) = 0.500</td><td class="n">1.000</td></tr>
+        <tr><td colspan="5" style="color:var(--muted)">Split A: “Is the card vintage?”</td></tr>
+        <tr><td>&nbsp;&nbsp;Vintage</td><td class="n">4</td><td class="n">3 / 1</td><td class="n">1 − (.75² + .25²) = 0.375</td><td class="n">0.811</td></tr>
+        <tr><td>&nbsp;&nbsp;Modern</td><td class="n">6</td><td class="n">2 / 4</td><td class="n">1 − (.333² + .667²) = 0.444</td><td class="n">0.918</td></tr>
+        <tr><td colspan="5" style="color:var(--muted)">Split B: “Is rarity Ultra Rare or higher?”</td></tr>
+        <tr><td>&nbsp;&nbsp;Ultra+</td><td class="n">4</td><td class="n">4 / 0</td><td class="n">0.000</td><td class="n">0.000</td></tr>
+        <tr><td>&nbsp;&nbsp;Below Ultra</td><td class="n">6</td><td class="n">1 / 5</td><td class="n">1 − (.167² + .833²) = 0.278</td><td class="n">0.650</td></tr>
+      </tbody>
+    </table></div>
+    <div class="math">
+      <h4>Information gain with entropy</h4>
+      <div class="f">Split A: 1.000 − (0.4 × 0.811 + 0.6 × 0.918) = 1.000 − 0.876 = <b>0.124</b>
+Split B: 1.000 − (0.4 × 0.000 + 0.6 × 0.650) = 1.000 − 0.390 = <b>0.610</b></div>
+      <h4 style="margin-top:12px">Same comparison with Gini</h4>
+      <div class="f">Split A: 0.500 − (0.4 × 0.375 + 0.6 × 0.444) = 0.500 − 0.417 = <b>0.083</b>
+Split B: 0.500 − (0.4 × 0.000 + 0.6 × 0.278) = 0.500 − 0.167 = <b>0.333</b></div>
+    </div>
+    <p>Split B wins under both measures, because it isolates a pure group of four High cards. The tree would ask the rarity question first.</p>
+    <p class="callout">The same arithmetic on the real training set: the root of Tree 1 splits 5,018 cards on <code>n_printings ≤ 1.5</code>. The parent (3,151 Low / 1,312 Mid / 555 High) has Gini 0.525. The “multiple printings” child (2,806 cards, 95% Low) has Gini 0.099 and the “single printing” child (2,212 cards) has Gini 0.588. Weighted child Gini is 0.315, so the Gini gain is <b>0.210</b>. Measured with entropy instead, the information gain is <b>0.457</b> bits (1.279 → 0.822). No other feature or threshold scored higher, which is why it sits at the root.</p>
+
+    <h3>Why there are infinitely many possible trees</h3>
+    <ul class="plain">
+      <li><b>Continuous thresholds.</b> A numeric feature like card age can be cut at any real number. Any cut between two neighbouring training values (say 13.80 and 13.99 years) sorts the training data the same way, but each is a different tree that will treat new cards differently.</li>
+      <li><b>Stopping choices.</b> Maximum depth, minimum samples per leaf, minimum gain to split, and pruning strength can all vary, and each setting produces a different tree. Without limits, a tree can keep splitting until every leaf is pure.</li>
+      <li><b>Criterion and features.</b> Gini, entropy or log-loss; which features are allowed; how categorical values are encoded.</li>
+      <li><b>The data itself.</b> A different random training sample, or a slightly different label threshold, changes the best split at the root, and every split below it changes too. Trees are known for this instability.</li>
+    </ul>
+    <p>Because the space of trees is effectively unlimited, algorithms like CART do not search for the single best tree (that problem is NP-hard). They grow one greedily, taking the best split at each node, and use hyperparameters and a held-out test set to choose among the results. Section (d) shows four of these trees built from the same data.</p>
+  </div>
+</section>
+
+<!-- ============================ (b) DATA PREP ============================ -->
+<section id="dataprep">
+  <div class="col">
+    <h2><span class="letter">b</span>Data Prep</h2>
+    <p>Decision trees are a <b>supervised</b> method. The model learns from examples where the answer is already known, so every training row needs a label. Here the label is the card's price tier, created from its February 2025 TCGplayer market price. A card with no market price has no label and cannot be used to train or test, so those rows were removed.</p>
+    <p>Supervised models also need two separate sets of labeled rows: a <b>training set</b> the tree learns its splits from, and a <b>testing set</b> it has never seen, used only to measure accuracy.</p>
+  </div>
+
+  <h3 class="col">1. The raw data</h3>
+  <figure class="scroll">
+    <img src="img/raw_sample.png" alt="Ten random rows of the raw Pokémon card data" loading="lazy" style="width:1100px">
+    <figcaption><b>Figure 4.</b> Raw data sample: four CSV files with 27 columns each (Feb and Mar 2025 snapshots for modern and vintage sets). Prices sit in up to three columns because a card can be sold as Normal, Reverse Holofoil, or Holofoil. Many fields are text (Subtypes, Attacks, Rarity) and some are blank.</figcaption>
+  </figure>
+
+  <div class="col">
+    <h3>2. Labeling and cleaning</h3>
+    <ul class="plain">
+      <li><b>Combined</b> the Feb 2025 modern (6,345 rows) and vintage (868 rows) files into 7,213 cards, adding an Era column.</li>
+      <li><b>Price</b> = the highest market price across a card's printings. 522 cards had no price at all (most of them vintage) and were dropped as unlabeled, leaving <b>6,691 labeled cards</b>.</li>
+      <li><b>Label</b> = <span class="chip low"><i></i>Low ≤ $1</span> <span class="chip mid"><i></i>Mid $1–$10</span> <span class="chip high"><i></i>High &gt; $10</span>. Counts: 4,201 Low, 1,750 Mid, 740 High.</li>
+      <li><b>All-numeric features</b>, because scikit-learn trees only accept numbers. Text columns were converted into ordinal codes, 0/1 flags, counts, or measurements:</li>
+    </ul>
+    <div class="tbl"><table>
+      <thead><tr><th>Feature</th><th>Built from</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><code>rarity_rank</code></td><td>Rarity</td><td>0 Common, 1 Uncommon, 2 Rare/Promo, 3 Rare Holo, 4 V/Double/Shiny, 5 Ultra/Illustration, 6 Secret/SIR/Hyper</td></tr>
+        <tr><td><code>n_printings</code></td><td>Price columns</td><td>How many versions are sold (1 = holo only, 2 = normal + reverse holo)</td></tr>
+        <tr><td><code>card_age_yrs</code></td><td>Release Date</td><td>Years between release and the price date</td></tr>
+        <tr><td><code>is_vintage</code></td><td>Era</td><td>1 for the 1999–2002 sets</td></tr>
+        <tr><td><code>set_position</code></td><td>ID</td><td>Card number ÷ highest number in its set (near 1 = secret-rare slots)</td></tr>
+        <tr><td><code>pokemon_popularity</code></td><td>Name</td><td>How many cards feature that Pokémon (Pikachu, Charizard and Eevee score high)</td></tr>
+        <tr><td><code>hp</code>, <code>retreat_cost</code></td><td>HP, Retreat Cost</td><td>Gameplay stats (0 for Trainers and Energy)</td></tr>
+        <tr><td><code>n_attacks</code>, <code>max_damage</code></td><td>Attacks</td><td>Number of attacks and the largest printed damage</td></tr>
+        <tr><td><code>is_pokemon</code>, <code>is_trainer</code>, <code>is_supporter</code>, <code>is_rule_box</code></td><td>Supertype, Subtypes</td><td>0/1 flags; rule box = V, VMAX, VSTAR, ex, GX, Radiant</td></tr>
+        <tr><td><code>pokedex_no</code></td><td>Pokedex Number</td><td>National Dex number (0 if not a Pokémon)</td></tr>
+      </tbody>
+    </table></div>
+    <p>The price itself is never used as a feature, since the label is derived from it. Name, set and price stay in the files for reference only.</p>
+  </div>
+
+  <figure class="scroll">
+    <img src="img/clean_sample.png" alt="Ten rows of the cleaned, labeled, numeric data" loading="lazy" style="width:1000px">
+    <figcaption><b>Figure 5.</b> Cleaned and labeled data (subset of the 15 features shown). This is the format the tree is trained on.</figcaption>
+  </figure>
+
+  <div class="col">
+    <h3>3. Training and testing sets</h3>
+    <p>I used <code>train_test_split(test_size=0.25, stratify=y, random_state=42)</code>. It shuffles the 6,691 labeled cards and puts each one into exactly one set: <b>5,018 training</b> cards (75%) and <b>1,673 testing</b> cards (25%). Stratifying keeps the Low/Mid/High mix identical in both sets, which matters because only 11% of cards are High. The script then checks that no card ID appears in both sets.</p>
+    <p>The sets <b>must be disjoint</b>. A tree that is scored on cards it trained on is being asked about answers it has already memorized, so the score says nothing about new cards. Section (d) shows this directly: the unpruned Tree 4 is 99.8% accurate on its own training data but 86.2% on the test set. Only the test score is an honest estimate of how the model will do on cards it has never seen.</p>
+  </div>
+
+  <figure class="col">
+    <img src="img/split_balance.png" alt="Stacked bars showing tier shares in all data, training, and testing sets" loading="lazy">
+    <figcaption><b>Figure 6.</b> The stratified split preserves the 63 / 26 / 11 tier mix in both sets.</figcaption>
+  </figure>
+  <div class="pair">
+    <figure><img src="img/train_sample.png" alt="First eight rows of the training set" loading="lazy">
+      <figcaption><b>Figure 7.</b> Training set (5,018 rows), used to choose every split.</figcaption></figure>
+    <figure><img src="img/test_sample.png" alt="First eight rows of the testing set" loading="lazy">
+      <figcaption><b>Figure 8.</b> Testing set (1,673 rows), held back until evaluation. No card is in both.</figcaption></figure>
+  </div>
+
+  <div class="col"><h3>Data links</h3></div>
+  <div class="links">
+    <a href="data/raw_sample_200.csv" target="_blank" rel="noopener"><b>Raw sample</b> (CSV)<span>First 200 rows of the original Feb 2025 modern file, all 27 columns</span></a>
+    <a href="data/cards_labeled_clean.csv" target="_blank" rel="noopener"><b>Cleaned &amp; labeled data</b> (CSV)<span>All 6,691 labeled cards with numeric features and price_tier</span></a>
+    <a href="data/train_set.csv" target="_blank" rel="noopener"><b>Training set</b> (CSV)<span>5,018 rows</span></a>
+    <a href="data/test_set.csv" target="_blank" rel="noopener"><b>Testing set</b> (CSV)<span>1,673 rows</span></a>
+  </div>
+</section>
+
+<!-- ============================ (c) CODE ============================ -->
+<section id="code">
+  <div class="col">
+    <h2><span class="letter">c</span>Code</h2>
+    <p>Written in Python with pandas, scikit-learn and matplotlib. One script loads the four CSVs, builds the labels and numeric features, makes the stratified split, trains four trees, and writes every table, figure and metric on this page. Because scikit-learn's <code>DecisionTreeClassifier</code> accepts only numbers, all text fields were encoded first (see Data Prep).</p>
+  </div>
+  <div class="links">
+    <a href="code/decision_trees_pokemon.py" target="_blank" rel="noopener"><b>decision_trees_pokemon.py</b><span>Full script (Python 3, scikit-learn 1.9)</span></a>
+    <a href="code/metrics.json" target="_blank" rel="noopener"><b>metrics.json</b><span>Accuracies, confusion matrices, per-class reports, importances</span></a>
+    <a href="code/tree2_entropy_d6_rules.txt" target="_blank" rel="noopener"><b>Tree 2 rules</b> (text)<span>Every split in the entropy tree as if/else rules</span></a>
+  </div>
+  <div class="col">
+    <p>The core of the modeling step:</p>
+  </div>
+<pre class="code"><span class="c"># stratified 75/25 split; each card lands in exactly one set</span>
+X_train, X_test, y_train, y_test, m_train, m_test = train_test_split(
+    X_all, y_all, meta, test_size=0.25, random_state=42, stratify=y_all)
+assert set(m_train["ID"]).isdisjoint(set(m_test["ID"]))
+
+<span class="c"># four trees: different criteria, depths, and feature sets</span>
+SPECS = {
+  "tree1_gini_d3":        dict(criterion="gini",    max_depth=3),
+  "tree2_entropy_d6":     dict(criterion="entropy", max_depth=6, min_samples_leaf=10),
+  "tree3_gini_no_rarity": dict(criterion="gini",    max_depth=4, drop=["rarity_rank"]),
+  "tree4_unpruned":       dict(criterion="gini",    max_depth=None),
+}
+clf = DecisionTreeClassifier(criterion=s["criterion"], max_depth=s["max_depth"],
+                             min_samples_leaf=s.get("min_samples_leaf", 1), random_state=42)
+clf.fit(X_train[feats], y_train)
+pred = clf.predict(X_test[feats])
+accuracy_score(y_test, pred)
+confusion_matrix(y_test, pred, labels=["Low", "Mid", "High"])
+plot_tree(clf, feature_names=feats, class_names=list(clf.classes_), filled=True)</pre>
+</section>
+
+<!-- ============================ (d) RESULTS ============================ -->
+<section id="results">
+  <div class="col">
+    <h2><span class="letter">d</span>Results</h2>
+    <p>Every tree was trained on the same 5,018 cards and scored on the same 1,673 unseen test cards. Always guessing the most common tier (Low) would score 62.8%, so that is the bar to beat.</p>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>Tree</th><th>Criterion</th><th>Settings</th><th class="n">Leaves</th><th class="n">Train acc.</th><th class="n">Test acc.</th><th class="n">High recall</th></tr></thead>
+    <tbody>
+      <tr><td>Tree 1</td><td>Gini</td><td>depth 3, all features</td><td class="n">7</td><td class="n">80.3%</td><td class="n">81.1%</td><td class="n">16%</td></tr>
+      <tr class="best"><td>Tree 2</td><td>Entropy</td><td>depth 6, ≥10 cards per leaf</td><td class="n">39</td><td class="n">86.8%</td><td class="n"><b>86.5%</b></td><td class="n">65%</td></tr>
+      <tr><td>Tree 3</td><td>Gini</td><td>depth 4, rarity removed</td><td class="n">13</td><td class="n">82.2%</td><td class="n">80.6%</td><td class="n">37%</td></tr>
+      <tr><td>Tree 4</td><td>Gini</td><td>no depth limit</td><td class="n">618</td><td class="n">99.8%</td><td class="n">86.2%</td><td class="n">76%</td></tr>
+    </tbody>
+  </table></div>
+
+  <figure class="col">
+    <img src="img/accuracy_train_vs_test.png" alt="Bar chart of training and testing accuracy for four trees against a 62.8% baseline" loading="lazy">
+    <figcaption><b>Figure 9.</b> Every tree clears the 62.8% baseline by roughly 18–24 points. Tree 4's gap between training (99.8%) and testing (86.2%) is classic overfitting: 618 leaves memorize the training cards without beating the 39-leaf Tree 2 on new ones.</figcaption>
+  </figure>
+
+  <div class="col">
+    <h3>Tree 1 · Gini, depth 3</h3>
+    <p>The smallest tree is the easiest to read. Its first question is whether a card is sold in more than one printing. Commons and uncommons almost always come in normal and reverse-holo versions, and 95% of those are Low. Among those multi-printing cards, anything older than 13.9 years (the vintage sets) goes straight to a pure High leaf of 77 cards. On the single-printing side it uses rarity and age, but every one of those leaves predicts Mid. That makes Tree 1 cautious: it never confuses Low with High, yet it catches only 29 of the 185 High test cards.</p>
+  </div>
+  <figure class="scroll">
+    <img src="img/tree1_gini_d3.png" alt="Tree 1 diagram, Gini depth 3" loading="lazy" style="width:1200px">
+    <figcaption><b>Figure 10.</b> Tree 1. Box color shows the majority tier (blue Low, orange Mid, green High); stronger color = purer node. <code>value</code> counts are in sklearn's alphabetical order: [High, Low, Mid].</figcaption>
+  </figure>
+
+  <div class="col">
+    <h3>Tree 2 · Entropy, depth 6 (best)</h3>
+    <p>Allowing three more levels lets the tree separate modern chase cards from ordinary ultra rares. Below the first split it uses rarity tier (Special Illustration, Hyper and Secret rares vs. regular ultras), how recently the card came out, the Pokémon's Dex number and popularity, and the vintage flag. High recall rises from 16% to 65% while overall accuracy reaches 86.5%, and training and test accuracy are almost identical, so this tree is not overfitting.</p>
+  </div>
+  <figure class="scroll">
+    <img src="img/tree2_entropy_d6.png" alt="Tree 2 diagram, top three levels" loading="lazy" style="width:1300px">
+    <figcaption><b>Figure 11.</b> Tree 2, top three of six levels. <a href="img/tree2_full.png" target="_blank" rel="noopener">Open the full 39-leaf tree</a> or read <a href="code/tree2_entropy_d6_rules.txt" target="_blank" rel="noopener">its rules as text</a>.</figcaption>
+  </figure>
+
+  <div class="col">
+    <h3>Tree 3 · Gini, depth 4, without rarity</h3>
+    <p>This tree tests what the model can learn when the official rarity is hidden. It recovers most of the signal from <code>set_position</code>: cards numbered past about 69% of their set's highest number are the full-art and secret slots. It then uses Pokémon popularity and Dex number to pick out the High cards: a frequently printed Pokémon from the first three generations (Dex number ≤ 292) in a late set slot is predicted High. Accuracy is 80.6%, only half a point below Tree 1, which had rarity available.</p>
+  </div>
+  <figure class="scroll">
+    <img src="img/tree3_gini_no_rarity.png" alt="Tree 3 diagram, Gini depth 4 without rarity" loading="lazy" style="width:1300px">
+    <figcaption><b>Figure 12.</b> Tree 3. Without rarity, set position and Pokémon popularity take its place.</figcaption>
+  </figure>
+
+  <div class="col">
+    <h3>Confusion matrices</h3>
+    <p>Rows are the true tier and columns the predicted tier, so the diagonal counts correct predictions. In all three trees, almost every mistake is between neighbouring tiers. Tree 2 sends only 7 High cards to Low and no Low cards to High. Most of its errors sit near the $1 and $10 cut-offs, where a few cents or dollars change the label.</p>
+  </div>
+  <figure>
+    <img src="img/confusion_matrices.png" alt="Three confusion matrices for Trees 1, 2 and 3" loading="lazy">
+    <figcaption><b>Figure 13.</b> Test-set confusion matrices (1,673 cards: 1,050 Low, 438 Mid, 185 High).</figcaption>
+  </figure>
+  <div class="tbl"><table>
+    <thead><tr><th>Tree</th><th class="n">Accuracy</th><th class="n">Low prec. / recall</th><th class="n">Mid prec. / recall</th><th class="n">High prec. / recall</th></tr></thead>
+    <tbody>
+      <tr><td>Tree 1 · Gini d3</td><td class="n">81.1%</td><td class="n">0.98 / 0.87</td><td class="n">0.59 / 0.95</td><td class="n">0.97 / 0.16</td></tr>
+      <tr class="best"><td>Tree 2 · Entropy d6</td><td class="n">86.5%</td><td class="n">0.93 / 0.96</td><td class="n">0.76 / 0.74</td><td class="n">0.72 / 0.65</td></tr>
+      <tr><td>Tree 3 · no rarity</td><td class="n">80.6%</td><td class="n">0.89 / 0.93</td><td class="n">0.67 / 0.68</td><td class="n">0.58 / 0.37</td></tr>
+    </tbody>
+  </table></div>
+
+  <figure>
+    <img src="img/feature_importance.png" alt="Feature importance bars for Tree 2 and Tree 3" loading="lazy">
+    <figcaption><b>Figure 14.</b> Feature importance = each feature's share of the total impurity reduction. Gameplay stats (HP, damage, retreat cost) contribute almost nothing.</figcaption>
+  </figure>
+
+  <div class="col">
+    <h3>Out-of-time check</h3>
+    <p>As a final test, Tree 2 (trained on February prices) predicted the March 2025 tier of the same 1,673 test cards. It scored <b>87.0%</b>. Only 1.7% of those cards changed tier between the two months, so a month of price movement barely affects the model.</p>
+  </div>
+</section>
+
+<!-- ============================ (e) CONCLUSIONS ============================ -->
+<section id="conclusions">
+  <div class="col">
+    <h2><span class="letter">e</span>Conclusions</h2>
+    <p>Decision trees can sort Pokémon cards into Low, Mid and High price tiers with about 86% accuracy from printed information alone, well above the 63% you would get by guessing "under a dollar" for everything. The trees also make it clear <em>why</em> a card is priced the way it is.</p>
+    <div class="takeaways">
+      <div><b>How a card is printed matters more than how it plays.</b>Whether a card comes in both normal and reverse-holo versions was the most important feature in every tree. That one fact separates bulk commons and uncommons (95% under $1) from the holo-only rares and chase cards. HP, attack damage and retreat cost added almost nothing. Collectors price scarcity and art, not battle strength.</div>
+      <div><b>Age is a shortcut to High.</b>Every multi-printing vintage card (1999–2002) the tree saw was worth more than $10, and 46% of all priced vintage cards are High compared with 9% of modern ones. An old Base Set uncommon can outprice a brand-new ultra rare.</div>
+      <div><b>Modern High cards are the hard part.</b>Among modern ultra and secret rares, High and Mid overlap heavily. The tree needs extra cues to tell them apart: Special Illustration and Hyper rares, recently released sets, and popular Pokémon. A popular early-generation Pokémon in a late "secret" set slot is the clearest High signal the no-rarity tree found.</div>
+      <div><b>Rarity can be inferred.</b>With rarity removed, set position and Pokémon popularity recovered almost the same accuracy (80.6% vs 81.1%). The card number alone reveals much of what the rarity symbol says.</div>
+      <div><b>Bigger trees are not better.</b>The unlimited tree memorized its training data (99.8%) yet did no better on new cards than a 39-leaf tree. Limiting depth and leaf size gave a simpler model that generalizes just as well.</div>
+    </div>
+    <p>For a collector or seller, this means a short checklist predicts most of a card's value: Is it holo-only? Is it vintage? Is it a Special Illustration, Hyper or Secret rare? Is it a fan-favorite Pokémon? Cards that pass several of those checks are the ones to sleeve, grade, or price-check before selling. Cards that fail all of them can usually go in the bulk box.</p>
+    <p style="color:var(--muted);font-size:15px">Limitations: prices are from two snapshots (Feb and Mar 2025), condition and grading are not included, 522 cards with no market price could not be labeled, and the $1/$10 tier boundaries are my own choice. A regression tree on raw price or a Random Forest would be natural next steps.</p>
+  </div>
+</section>
+</div>
