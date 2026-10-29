@@ -957,6 +957,27 @@
       <li><b>Criterion and features.</b> Gini, entropy or log-loss; which features are allowed; how categorical values are encoded.</li>
       <li><b>The data itself.</b> A different random training sample, or a slightly different label threshold, changes the best split at the root, and every split below it changes too. Trees are known for this instability.</li>
     </ul>
+
+    <h2>Data Prep</h2>
+    <p>Supervised learning needs labeled data. Just like Naive Bayes, the cards are labeled as "Low", "Mid", and "High" price tiers, leaving 6691 labeled cards. Because scikit-learn trees only accept numbers. Text columns were converted into ordinal codes, 0/1 flags, counts, or measurements. 
+      The price itself is never used as a feature, since the label is derived from it. Name, set and price stay in the files for reference only.
+    </p>
+    <div class="tbl"><table>
+      <thead><tr><th>Feature</th><th>Built from</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><code>rarity_rank</code></td><td>Rarity</td><td>0 Common, 1 Uncommon, 2 Rare/Promo, 3 Rare Holo, 4 V/Double/Shiny, 5 Ultra/Illustration, 6 Secret/SIR/Hyper</td></tr>
+        <tr><td><code>n_printings</code></td><td>Price columns</td><td>How many versions are sold (1 = holo only, 2 = normal + reverse holo)</td></tr>
+        <tr><td><code>card_age_yrs</code></td><td>Release Date</td><td>Years between release and the price date</td></tr>
+        <tr><td><code>is_vintage</code></td><td>Era</td><td>1 for the 1999–2002 sets</td></tr>
+        <tr><td><code>set_position</code></td><td>ID</td><td>Card number ÷ highest number in its set (near 1 = secret-rare slots)</td></tr>
+        <tr><td><code>pokemon_popularity</code></td><td>Name</td><td>How many cards feature that Pokémon (Pikachu, Charizard and Eevee score high)</td></tr>
+        <tr><td><code>hp</code>, <code>retreat_cost</code></td><td>HP, Retreat Cost</td><td>Gameplay stats (0 for Trainers and Energy)</td></tr>
+        <tr><td><code>n_attacks</code>, <code>max_damage</code></td><td>Attacks</td><td>Number of attacks and the largest printed damage</td></tr>
+        <tr><td><code>is_pokemon</code>, <code>is_trainer</code>, <code>is_supporter</code>, <code>is_rule_box</code></td><td>Supertype, Subtypes</td><td>0/1 flags; rule box = V, VMAX, VSTAR, ex, GX, Radiant</td></tr>
+        <tr><td><code>pokedex_no</code></td><td>Pokedex Number</td><td>National Dex number (0 if not a Pokémon)</td></tr>
+      </tbody>
+    </table></div>
+    
     
     
   </section>
