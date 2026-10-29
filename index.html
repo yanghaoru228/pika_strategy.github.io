@@ -986,6 +986,17 @@
 
   <h2>Code</h2>
   <h2>Results</h2>
+    <p>Every tree was trained on the same 5,018 cards and scored on the same 1,673 unseen test cards. Always guessing the most common tier (Low) would score 62.8%, so that is the bar to beat.</p>
+    <table>
+    <thead><tr><th>Tree</th><th>Criterion</th><th>Settings</th><th class="n">Leaves</th><th class="n">Train acc.</th><th class="n">Test acc.</th><th class="n">High recall</th></tr></thead>
+    <tbody>
+      <tr><td>Tree 1</td><td>Gini</td><td>depth 3, all features</td><td class="n">7</td><td class="n">80.3%</td><td class="n">81.1%</td><td class="n">16%</td></tr>
+      <tr class="best"><td>Tree 2</td><td>Entropy</td><td>depth 6, ≥10 cards per leaf</td><td class="n">39</td><td class="n">86.8%</td><td class="n"><b>86.5%</b></td><td class="n">65%</td></tr>
+      <tr><td>Tree 3</td><td>Gini</td><td>depth 4, rarity removed</td><td class="n">13</td><td class="n">82.2%</td><td class="n">80.6%</td><td class="n">37%</td></tr>
+      <tr><td>Tree 4</td><td>Gini</td><td>no depth limit</td><td class="n">618</td><td class="n">99.8%</td><td class="n">86.2%</td><td class="n">76%</td></tr>
+    </tbody>
+  </table>
+    
   <h2>Conclusion</h2>
     
     
