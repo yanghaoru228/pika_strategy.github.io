@@ -883,10 +883,81 @@
       $$\text{Gini(node) } = 1 − \sum_i p_i^2, \qquad 0 = \text{pure}, \quad 0.667 \text{ max for 3 classes}$$
       $$\text{Entropy(node)} = − \sum_i p_i · \log_2 p_i, \qquad 0 = \text{pure}, \quad 1.585 \text{max for 3 classes}$$
       $$\text{Gain(split) } = \text{Impurity(parent) } − \sum_k (n_k / n) \cdot \text{Impurity(child_k)}$$
-
-</div>
     <p>Both measures are zero when a node holds a single class and largest when the classes are evenly mixed. Gini is slightly cheaper to compute (no logarithm) and is scikit-learn's default; entropy comes from information theory and penalizes mixed nodes a little more sharply. In practice they usually pick the same or very similar splits. The weighted average in the gain formula matters: a split that creates one tiny pure child and one huge mixed child should not score well, so each child counts in proportion to its size.</p>
-  </div>
+    <p><b>Worked example: which question splits ten cards better?</b> Take ten cards: 5 are High and 5 are Low. Compare two candidate questions.</p>
+    <table>
+    <thead>
+      <tr>
+        <th>Node</th>
+        <th>Cards</th>
+        <th>High / Low</th>
+        <th>Gini</th>
+        <th>Entropy</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>Parent (all ten)</th>
+        <th>10</th>
+        <th>5 / 5</th>
+        <th>$1-(0.5^2 + 0.5^2) = 0.500$</th>
+        <th>1.000</th>
+      </tr>
+      <tr>
+        <th>Split A: "Is the card vintage?"</th>
+      </tr>
+      <tr>
+        <th>Vintage</th>
+        <th>4</th>
+        <th>3 / 1</th>
+        <th>$1-(0.75^2 + 0.25^2) = 0.375$</th>
+        <th>0.811</th>
+      </tr>
+      <tr>
+        <th>Modern</th>
+        <th>6</th>
+        <th>2 / 4</th>
+        <th>$1-(0.333^2 + 0.667^2) = 0.444$</th>
+        <th>0.918</th>
+      </tr>
+      <tr>
+        <th>Split B: "Is rarity Ultra Rare or higher?"</th>
+      </tr>
+      <tr>
+        <th>Ultra higher</th>
+        <th>4</th>
+        <th>4 / 0</th>
+        <th>$0.000$</th>
+        <th>0.000</th>
+      </tr>
+      <tr>
+        <th>Below Ultra</th>
+        <th>6</th>
+        <th>1 / 5</th>
+        <th>$1-(0.167^2 + 0.833^2) = 0.278$</th>
+        <th>0.650</th>
+      </tr>
+    </tbody>
+  </table>
+  <p>Information gain with entropy:</p>
+    <ul>
+      <li>Split A: $1.000 − (0.4 × 0.811 + 0.6 × 0.918) = 0.124$</li>
+      <li>Split B: $1.000 − (0.4 × 0.000 + 0.6 × 0.650) = 0.610$</li>
+    </ul>
+  <p>Information gain with Gini:</p>
+    <ul>
+      <li>Split A: $0.500 − (0.4 × 0.375 + 0.6 × 0.444) = 0.083$</li>
+      <li>Split B: $0.500 − (0.4 × 0.000 + 0.6 × 0.278) = 0.333$</li>
+    </ul>
+  <p>Split B wins under both measures, because it isolates a pure group of four High cards. The tree would ask the rarity question first.</p>
+  <p><b>Why there are infinitely many possible trees</b></p>
+    <ul>
+      <li><b>Continuous thresholds.</b> A numeric feature like card age can be cut at any real number. Any cut between two neighbouring training values (say 13.80 and 13.99 years) sorts the training data the same way, but each is a different tree that will treat new cards differently.</li>
+      <li><b>Stopping choices.</b> Maximum depth, minimum samples per leaf, minimum gain to split, and pruning strength can all vary, and each setting produces a different tree. Without limits, a tree can keep splitting until every leaf is pure.</li>
+      <li><b>Criterion and features.</b> Gini, entropy or log-loss; which features are allowed; how categorical values are encoded.</li>
+      <li><b>The data itself.</b> A different random training sample, or a slightly different label threshold, changes the best split at the root, and every split below it changes too. Trees are known for this instability.</li>
+    </ul>
+    
     
   </section>
 
