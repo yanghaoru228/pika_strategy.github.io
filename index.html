@@ -764,8 +764,8 @@
       Naïve Bayes (NB) is a family of supervised classifiers built on Bayes' theorem. Given a record with features $x = (x_1, x_2, ..., x_n)$, it asks: for each possible class $C$, how probable is that class given what we see? 
       It then predicts the class with the highest probability.
       $$P(C | x) = P(C) · P(x | C) / P(x)$$
-      $$\text{Naive assumption:}  P(x | C) = P(x_1 | C) · P(x_2 | C) \cdot … \cdot P(x_n | C)$$
-      $$\text{Prediction:} \hat{y} = argmax_C  [ log P(C) + Σ_i log P(x_i | C) ]$$
+      $$\text{Naive assumption:} \quad  P(x | C) = P(x_1 | C) · P(x_2 | C) \cdot … \cdot P(x_n | C)$$
+      $$\text{Prediction:} \quad \hat{y} = argmax_C  [ \log P(C) + Σ_i \log P(x_i | C) ]$$
       The "naive" part is the assumption that every feature is <b>conditionally independent</b> of the others once the class is known. That is rarely true. A card's rarity and its subtype (VMAX, ex) clearly move together. 
       Even so, NB works well in practice because it only needs the correct class to come out on top, not perfectly calibrated probabilities. The model trains in one pass by counting, needs little data, scales to thousands of features, and its learned probabilities are easy to read.
     </p>
