@@ -832,19 +832,19 @@
     <tbody>
       <tr>
         <td>Low</td>
-        <td>< $1</td>
+        <td>price $<\$1$</td>
         <td>4169</td>
         <td>62.3%</td>
       </tr>
       <tr>
         <td>Mid</td>
-        <td>>= $1 and < $10</td>
+        <td>$\$1 \leq$ price  $< \$10$</td>
         <td>1767</td>
         <td>26.4%</td>
       </tr>
       <tr>
         <td>High</td>
-        <td>>= $10</td>
+        <td>price $\geq \$10$</td>
         <td>755</td>
         <td>11.3%</td>
       </tr>
@@ -858,15 +858,24 @@
   <li><b>Small integer counts</b> for number of attacks and retreat cost (0 to 5).</li>
 </ul>
 <p>Name, ID, artist, image links, and the price columns were left out. ID and name are identifiers, not attributes. The price columns are where the label came from, so including them would leak the answer into the features.</p>
+<img src="assets/naive_bayes/img_prepared_sample.png" alt="naive_bayes_prepared_sample" class="result-chart">
 <p>Next is to splitting the dataset into a training set and testing set. </p>
 <ul>
   <li><b>Training Set (70%, 4683 cards)</b> is the only data the model sees while learning its priors and likelihoods.</li>
   <li><b>Testing Set (30%, 2008 cards)</b> is held back and used once, to measure accuracy on cards the model has never seen.</li>
   <li><b>Stratified</b> sampling keeps the Low / Mid / High mix the same in both sets, which matters here because High cards are only about 11% of the data.</li>
 </ul>
+<img src="assets/naive_bayes/img_train_sample.png" alt="naive_bayes_train_sample" class="result-chart">
+<img src="assets/naive_bayes/img_test_sample.png" alt="naive_bayes_test_sample" class="result-chart">
+<img src="assets/naive_bayes/img_split_balance.png" alt="naive_bayes_split_balance" class="result-chart">
+In the following, the price tires are color-coded in all the figures. "Low" is in blue, "Mid" is in orange, and "High" is in green. 
 <h2>Code</h2>
 <h2>Results</h2>
+    <p>On the 2,008 held-out test cards, <b>Multinomial NB scored 80.4% accuracy</b>. Always guessing the most common tier (Low) would score 62.3%, so the model adds about 18 percentage points over that baseline. 
+      Bernoulli NB, trained on the same features reduced to present/absent, scored 75.4%.</p>
+    <img src="assets/naive_bayes/img_accuracy.png" alt="naive_bayes_accuracy" class="result-chart">
     <p><b>Confusion Matrix</b> Rows are each card's actual tier; columns are what the model predicted. The diagonal holds the correct predictions. Shading follows the percentage of each row, so the smaller High tier reads as clearly as Low.</p>
+    <img src="assets/naive_bayes/img_accuracy.png" alt="naive_bayes_accuracy" class="result-chart">
     <ul>
       <li><b>Low cards are easy.</b> 87% of bulk cards were caught, with 91% precision. Commons and uncommons are almost always under $\$1$.</li>
       <li><b>Mid is the catch-all.</b> 76% recall, but it also absorbs mistakes from both sides: some Low cards look like Mid (holo rares, V cards), and many High cards are predicted Mid.</li>
