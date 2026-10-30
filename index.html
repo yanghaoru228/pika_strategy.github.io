@@ -875,13 +875,21 @@ In the following, the price tires are color-coded in all the figures. "Low" is i
       Bernoulli NB, trained on the same features reduced to present/absent, scored 75.4%.</p>
     <img src="assets/naive_bayes/img_accuracy.png" alt="naive_bayes_accuracy" class="result-chart">
     <p><b>Confusion Matrix</b> Rows are each card's actual tier; columns are what the model predicted. The diagonal holds the correct predictions. Shading follows the percentage of each row, so the smaller High tier reads as clearly as Low.</p>
-    <img src="assets/naive_bayes/img_accuracy.png" alt="naive_bayes_accuracy" class="result-chart">
+    <img src="assets/naive_bayes/img_confusion_bernoulli.png" alt="naive_bayes_CM_bernoulli" class="result-chart">
+    <img src="assets/naive_bayes/img_confusion_multinomial.png" alt="naive_bayes_CM_multinomial" class="result-chart">
+    <p>Based on their confusion matrix, the Multinomial NB has higher accuracy of classifying the cards into their price tire. The Multinomial NB demonstrates the following results:</p>
     <ul>
       <li><b>Low cards are easy.</b> 87% of bulk cards were caught, with 91% precision. Commons and uncommons are almost always under $\$1$.</li>
       <li><b>Mid is the catch-all.</b> 76% recall, but it also absorbs mistakes from both sides: some Low cards look like Mid (holo rares, V cards), and many High cards are predicted Mid.</li>
       <li><b>High cards are the hard case.</b> Only 52% were recognized. Two-fifths were labeled Mid. When the model does say High, it is right 70% of the time.</li>
       <li><b>Errors are almost always one tier off.</b> Only 26 test cards were confused between Low and High.</li>
     </ul>
+    <img src="assets/naive_bayes/img_precision_recall.png" alt="naive_bayes_multinomial_precision" class="result-chart">
+    <p><b>What the model learned.</b> Because NB stores a probability for every feature in every class, we can read it directly. The chart ranks features by how much more likely they are within a tier than in the other two (difference in log P(feature | tier)).</p>
+    <img src="assets/naive_bayes/img_top_features.png" alt="naive_bayes_top_features_for_hml" class="result-chart">
+    <p>Low tier is defined by ordinary rarities. Mid tier is defined by shiny, VMAX, and ultra-rare printings. High tier is defined by Special Illustration Rare, Illustration Rare, and 2002 release year (Legendary Collection).</p>
+    <p><b>Era matters.</b> Accuracy was 81.7% on modern test cards but 61.1% on vintage ones. Vintage prices depend on condition, nostalgia, and specific Pokémon (a Base Set Charizard against a Base Set Ponyta), and those things are not in the printed attributes. 
+      Vintage cards are also only about 6% of the training data.</p>
 <h2>Conclusions</h2>
 <p>A card's printed attributes alone predict its price tier correctly about <b>4 times in 5</b>. That is well above guessing, from a model that trains in under a second. For a collector, a seller sorting a box, or anyone looking at the hobby's economics, this says several things:</p>
 <ul>
