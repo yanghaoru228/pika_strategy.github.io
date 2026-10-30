@@ -868,7 +868,7 @@
 <img src="assets/naive_bayes/img_train_sample.png" alt="naive_bayes_train_sample" class="result-chart">
 <img src="assets/naive_bayes/img_test_sample.png" alt="naive_bayes_test_sample" class="result-chart">
 <img src="assets/naive_bayes/img_split_balance.png" alt="naive_bayes_split_balance" class="result-chart">
-In the following, the price tires are color-coded in all the figures. "Low" is in blue, "Mid" is in orange, and "High" is in green. 
+<p>In the following, the price tires are color-coded in all the figures. "Low" is in blue, "Mid" is in orange, and "High" is in green.</p> 
 <h2>Code</h2>
 <h2>Results</h2>
     <p>On the 2,008 held-out test cards, <b>Multinomial NB scored 80.4% accuracy</b>. Always guessing the most common tier (Low) would score 62.3%, so the model adds about 18 percentage points over that baseline. 
@@ -995,7 +995,7 @@ In the following, the price tires are color-coded in all the figures. "Low" is i
     <p>Supervised learning needs labeled data. Just like Naive Bayes, the cards are labeled as "Low", "Mid", and "High" price tiers, leaving 6691 labeled cards. Because scikit-learn trees only accept numbers. Text columns were converted into ordinal codes, 0/1 flags, counts, or measurements. 
       The price itself is never used as a feature, since the label is derived from it. Name, set and price stay in the files for reference only.
     </p>
-    <div class="tbl"><table>
+    <table>
       <thead><tr><th>Feature</th><th>Built from</th><th>Meaning</th></tr></thead>
       <tbody>
         <tr><td><code>rarity_rank</code></td><td>Rarity</td><td>0 Common, 1 Uncommon, 2 Rare/Promo, 3 Rare Holo, 4 V/Double/Shiny, 5 Ultra/Illustration, 6 Secret/SIR/Hyper</td></tr>
@@ -1009,13 +1009,19 @@ In the following, the price tires are color-coded in all the figures. "Low" is i
         <tr><td><code>is_pokemon</code>, <code>is_trainer</code>, <code>is_supporter</code>, <code>is_rule_box</code></td><td>Supertype, Subtypes</td><td>0/1 flags; rule box = V, VMAX, VSTAR, ex, GX, Radiant</td></tr>
         <tr><td><code>pokedex_no</code></td><td>Pokedex Number</td><td>National Dex number (0 if not a Pokémon)</td></tr>
       </tbody>
-    </table></div>
+    </table>
+    <img src="assets/decision_tree/clean_sample.png" alt="dec_tree_clean_sample" class="result-chart">
+    
     <p>Next is to splitting the dataset into a training set and testing set. </p>
   <ul>
     <li><b>Training Set (75%, 5018 cards)</b>  A tree that is scored on cards it trained on is being asked about answers it has already memorized, so the score says nothing about new cards. </li>
     <li><b>Testing Set (25%, 1673 cards)</b> This is a disjoint set from the training set. Only the test score is an honest estimate of how the model will do on cards it has never seen.</li>
     <li><b>Stratified</b> sampling keeps the Low / Mid / High mix the same in both sets, which matters here because High cards are only about 11% of the data.</li>
   </ul>
+    <img src="assets/decision_tree/train_sample.png" alt="dec_tree_train_sample" class="result-chart">
+    <img src="assets/decision_tree/test_sample.png" alt="dec_tree_test_sample" class="result-chart">
+    <img src="assets/decision_tree/split_balance.png" alt="dec_tree_split_balance" class="result-chart">
+    <p>In the following, the price tires are color-coded in all the figures. "Low" is in blue, "Mid" is in orange, and "High" is in green.</p> 
 
   <h2>Code</h2>
   <h2>Results</h2>
@@ -1032,10 +1038,13 @@ In the following, the price tires are color-coded in all the figures. "Low" is i
     <p><b>Tree 1: Gini, depth 3</b> The smallest tree is the easiest to read. Its first question is whether a card is sold in more than one printing. Commons and uncommons almost always come in normal and reverse-holo versions, and 95% of those are Low. 
       Among those multi-printing cards, anything older than 13.9 years (the vintage sets) goes straight to a pure High leaf of 77 cards. On the single-printing side it uses rarity and age, but every one of those leaves predicts Mid. 
       That makes Tree 1 cautious: it never confuses Low with High, yet it catches only 29 of the 185 High test cards.</p>
+    <img src="assets/decision_tree/tree1_gini_d3.png" alt="dec_tree_tree1" class="result-chart">
     <p><b>Tree 2: Entropy, depth 6 (best)</b> Allowing three more levels lets the tree separate modern chase cards from ordinary ultra rares. Below the first split it uses rarity tier (Special Illustration, Hyper and Secret rares vs. regular ultras), 
       how recently the card came out, the Pokémon's Dex number and popularity, and the vintage flag. High recall rises from 16% to 65% while overall accuracy reaches 86.5%, and training and test accuracy are almost identical, so this tree is not overfitting.</p>
+    <img src="assets/decision_tree/tree2_entropy_d6.png" alt="dec_tree_tree2" class="result-chart">
     <p><b>Tree 3: Gini, depth 4, without rarity</b> This tree tests what the model can learn when the official rarity is hidden. It recovers most of the signal from <code>set_position</code>: cards numbered past about 69% of their set's highest number are the full-art and secret slots. 
       It then uses Pokémon popularity and Dex number to pick out the High cards: a frequently printed Pokémon from the first three generations (Dex number ≤ 292) in a late set slot is predicted High. Accuracy is 80.6%, only half a point below Tree 1, which had rarity available.</p>
+    <img src="assets/decision_tree/tree3_gini_no_rarity.png" alt="dec_tree_tree3" class="result-chart">
   <h2>Conclusion</h2>
     <p>Decision trees can sort Pokémon cards into Low, Mid and High price tiers with about 86% accuracy from printed information alone, well above the 63% you would get by guessing "under a dollar" for everything. The trees also make it clear <em>why</em> a card is priced the way it is.</p>
     <ul>
