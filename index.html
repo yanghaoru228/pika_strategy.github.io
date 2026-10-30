@@ -866,11 +866,18 @@
 </ul>
 <h2>Code</h2>
 <h2>Results</h2>
+    <p><b>Confusion Matrix</b> Rows are each card's actual tier; columns are what the model predicted. The diagonal holds the correct predictions. Shading follows the percentage of each row, so the smaller High tier reads as clearly as Low.</p>
+    <ul>
+      <li><b>Low cards are easy.</b> 87% of bulk cards were caught, with 91% precision. Commons and uncommons are almost always under $\$1$.</li>
+      <li><b>Mid is the catch-all.</b> 76% recall, but it also absorbs mistakes from both sides: some Low cards look like Mid (holo rares, V cards), and many High cards are predicted Mid.</li>
+      <li><b>High cards are the hard case.</b> Only 52% were recognized. Two-fifths were labeled Mid. When the model does say High, it is right 70% of the time.</li>
+      <li><b>Errors are almost always one tier off.</b> Only 26 test cards were confused between Low and High.</li>
+    </ul>
 <h2>Conclusions</h2>
 <p>A card's printed attributes alone predict its price tier correctly about <b>4 times in 5</b>. That is well above guessing, from a model that trains in under a second. For a collector, a seller sorting a box, or anyone looking at the hobby's economics, this says several things:</p>
 <ul>
   <li><b>Rarity is the main driver of value.</b> The rarity symbol carried most of the signal. Common and Uncommon cards are reliably bulk, which supports the usual practice of sorting by rarity first.</li>
-  <li><b>Modern premium printings are what sell.</b> Special Illustration Rare, Illustration Rare, Hyper Rare, and rainbow or shiny printings mark the cards most likely to reach $10 or more. Ordinary holos and V cards mostly land in the $1–$10 range.</li>
+  <li><b>Modern premium printings are what sell.</b> Special Illustration Rare, Illustration Rare, Hyper Rare, and rainbow or shiny printings mark the cards most likely to reach $\$10$ or more. Ordinary holos and V cards mostly land in the $\$1–\$10$ range.</li>
   <li><b>Set age is a value signal.</b> Release year was among the strongest High-tier features. Older vintage sets (especially Legendary Collection, 2002) carry a premium regardless of the card's game stats.</li>
   <li><b>Game stats barely matter for price.</b> HP, damage, retreat cost, and energy type ranked far below rarity and era. Collectors pay for scarcity and artwork, not playability.</li>
   <li><b>The model can't spot the chase cards inside a rarity.</b> About half of High-tier cards were underpriced as Mid. What separates a $15 card from a $3 card of the same rarity is usually the specific Pokémon (Charizard, Umbreon, Pikachu), the artwork, and demand. Those are not among these features. Adding the Pokémon's name or popularity, or the artist, would likely help most for the High tier and for vintage cards.</li>
