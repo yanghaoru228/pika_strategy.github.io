@@ -1,0 +1,565 @@
+<title>Naïve Bayes: Card Price Tiers</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column with a sticky section rail; figures sit on light "plates" so the PNG charts read in both themes */
+:root {
+  --bg: #f6f7f9; --panel: #ffffff; --ink: #14171c; --ink-2: #4a505a; --rule: #dde1e7;
+  --accent: #2a78d6; --accent-soft: #e6effb; --plate: #fcfcfb;
+  --low: #2a78d6; --mid: #eb6834; --high: #1baf7a;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Newsreader", Georgia, "Times New Roman", serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121519; --panel: #1a1e24; --ink: #eceef1; --ink-2: #a9b0bb; --rule: #2c323b;
+  --accent: #5c9de8; --accent-soft: #1d2b3d; --plate: #fcfcfb; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #121519; --panel: #1a1e24; --ink: #eceef1; --ink-2: #a9b0bb; --rule: #2c323b;
+  --accent: #5c9de8; --accent-soft: #1d2b3d; --plate: #fcfcfb; color-scheme: dark }
+
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 18px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: 1060px; margin: 0 auto; padding-block: 40px 80px; display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 48px; }
+@media (max-width: 820px) { .wrap { grid-template-columns: minmax(0,1fr); gap: 16px; } nav.rail { position: static !important; } }
+
+nav.rail { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-family: var(--f-display); font-size: 14px; }
+nav.rail ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+@media (max-width: 820px) { nav.rail ol { flex-direction: row; flex-wrap: wrap; gap: 6px 14px; } }
+nav.rail a { color: var(--ink-2); text-decoration: none; display: flex; gap: 8px; }
+nav.rail a:hover, nav.rail a:focus-visible { color: var(--accent); }
+nav.rail .k { font-family: var(--f-mono); color: var(--accent); }
+
+header.top { border-bottom: 1px solid var(--rule); padding-bottom: 24px; margin-bottom: 8px; }
+.eyebrow { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+h1 { font-family: var(--f-display); font-weight: 700; font-size: clamp(32px, 5vw, 48px); line-height: 1.05; margin: 8px 0 12px; text-wrap: balance; letter-spacing: -.01em; }
+.lede { font-size: 20px; color: var(--ink-2); max-width: 62ch; margin: 0; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-top: 24px; }
+@media (max-width: 600px) { .stats { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+.stat { background: var(--panel); border: 1px solid var(--rule); border-radius: 8px; padding: 12px 14px; }
+.stat b { display: block; font-family: var(--f-display); font-size: 26px; font-variant-numeric: tabular-nums; }
+.stat span { font-family: var(--f-mono); font-size: 12px; color: var(--ink-2); }
+
+section { padding-top: 40px; scroll-margin-top: 16px; }
+h2 { font-family: var(--f-display); font-weight: 700; font-size: 28px; margin: 0 0 12px; display: flex; gap: 12px; align-items: baseline; text-wrap: balance; }
+h2 .k { font-family: var(--f-mono); font-size: 16px; font-weight: 500; color: var(--accent); }
+h3 { font-family: var(--f-display); font-weight: 500; font-size: 20px; margin: 28px 0 8px; }
+p, ul, ol { max-width: 68ch; }
+p { margin: 0 0 14px; }
+li { margin-bottom: 6px; }
+a { color: var(--accent); }
+code, .mono { font-family: var(--f-mono); font-size: .82em; }
+code { background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; }
+
+.formula { font-family: var(--f-mono); font-size: 15px; background: var(--panel); border: 1px solid var(--rule); border-left: 3px solid var(--accent); padding: 14px 16px; margin: 12px 0 16px; overflow-x: auto; white-space: pre; line-height: 1.7; }
+
+.compare { width: 100%; border-collapse: collapse; font-size: 16px; }
+.tablebox { overflow-x: auto; margin: 12px 0 18px; border: 1px solid var(--rule); border-radius: 8px; background: var(--panel); }
+.compare th, .compare td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.compare th { font-family: var(--f-display); font-weight: 500; font-size: 14px; color: var(--ink-2); }
+.compare tr:last-child td { border-bottom: 0; }
+.compare td.num { font-variant-numeric: tabular-nums; font-family: var(--f-mono); font-size: 14px; }
+
+figure { margin: 16px 0 24px; }
+.plate { background: var(--plate); border: 1px solid var(--rule); border-radius: 8px; padding: 12px; overflow-x: auto; }
+.plate img { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+.plate.wide img { max-width: none; width: 100%; min-width: 640px; }
+figcaption { font-size: 15px; color: var(--ink-2); margin-top: 8px; max-width: 68ch; }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
+@media (max-width: 700px) { .pair { grid-template-columns: minmax(0,1fr); } }
+
+.files { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin: 14px 0 20px; max-width: 760px; }
+.file { display: flex; flex-direction: column; gap: 2px; padding: 10px 14px; border: 1px solid var(--rule); border-radius: 8px; background: var(--panel); text-decoration: none; color: var(--ink); }
+.file:hover, .file:focus-visible { border-color: var(--accent); }
+.file b { font-family: var(--f-mono); font-size: 13px; font-weight: 500; color: var(--accent); word-break: break-all; }
+.file span { font-size: 14px; color: var(--ink-2); }
+
+.tier { display: inline-block; font-family: var(--f-mono); font-size: 13px; padding: 0 8px; border-radius: 99px; color: #fff; }
+.tier.low { background: var(--low); } .tier.mid { background: var(--mid); } .tier.high { background: #138a60; }
+
+.callout { background: var(--accent-soft); border-radius: 8px; padding: 14px 18px; margin: 16px 0; max-width: 68ch; }
+.callout p:last-child { margin-bottom: 0; }
+
+details.code { border: 1px solid var(--rule); border-radius: 8px; background: var(--panel); margin: 14px 0; }
+details.code summary { cursor: pointer; padding: 12px 16px; font-family: var(--f-display); font-size: 15px; }
+details.code summary:focus-visible { outline: 2px solid var(--accent); }
+details.code pre { margin: 0; padding: 16px; overflow-x: auto; font-family: var(--f-mono); font-size: 12.5px; line-height: 1.55; border-top: 1px solid var(--rule); max-height: 620px; }
+.steps { padding-left: 22px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="wrap">
+<nav class="rail" aria-label="Sections">
+  <ol>
+    <li><a href="#overview"><span class="k">a</span>Overview</a></li>
+    <li><a href="#data-prep"><span class="k">b</span>Data Prep</a></li>
+    <li><a href="#code"><span class="k">c</span>Code</a></li>
+    <li><a href="#results"><span class="k">d</span>Results</a></li>
+    <li><a href="#conclusions"><span class="k">e</span>Conclusions</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="eyebrow">Pokémon TCG Analysis · Naïve Bayes</div>
+  <h1>Can a card's printed attributes predict its price tier?</h1>
+  <p class="lede">A Multinomial Naïve Bayes classifier reads a card the way a collector does (its rarity, era, subtypes, HP, attacks) and sorts it into a <span class="tier low">Low</span> <span class="tier mid">Mid</span> or <span class="tier high">High</span> price tier.</p>
+  <div class="stats">
+    <div class="stat"><b>80.4%</b><span>test accuracy</span></div>
+    <div class="stat"><b>62.3%</b><span>majority-class baseline</span></div>
+    <div class="stat"><b>6,691</b><span>labeled cards</span></div>
+    <div class="stat"><b>92</b><span>count features</span></div>
+  </div>
+</header>
+
+<!-- ============================================================ OVERVIEW -->
+<section id="overview">
+<h2><span class="k">(a)</span>Overview</h2>
+<p>Naïve Bayes (NB) is a family of supervised classifiers built on Bayes' theorem. Given a record with features <i>x</i> = (<i>x</i>₁, …, <i>x</i>ₙ), it asks: for each possible class <i>C</i>, how probable is that class given what we see? It then predicts the class with the highest probability.</p>
+<div class="formula">P(C | x) = P(C) · P(x | C) / P(x)
+
+Naïve assumption:  P(x | C) = P(x₁ | C) · P(x₂ | C) · … · P(xₙ | C)
+
+Prediction:        ŷ = argmax_C  [ log P(C) + Σᵢ log P(xᵢ | C) ]</div>
+<p>The "naïve" part is the assumption that every feature is <b>conditionally independent</b> of the others once the class is known. That is rarely true. A card's rarity and its subtype (VMAX, ex) clearly move together. Even so, NB works well in practice because it only needs the correct class to come out on top, not perfectly calibrated probabilities. The model trains in one pass by counting, needs little data, scales to thousands of features, and its learned probabilities are easy to read.</p>
+<p><b>P(C)</b> is the <i>prior</i>: how common each class is in the training data. <b>P(xᵢ | C)</b> is the <i>likelihood</i> of a feature within a class. Working in log space avoids multiplying many tiny probabilities into numeric underflow.</p>
+
+<h3>What NB is used for</h3>
+<ul>
+  <li><b>Text classification:</b> spam filtering, sentiment analysis, topic and news tagging, where documents become word-count vectors.</li>
+  <li><b>Fast baselines</b> for any categorical or count-based classification problem before trying heavier models.</li>
+  <li><b>Recommendation and filtering</b> (for example, "will this user like this item").</li>
+  <li><b>Medical and risk screening</b> from symptom or attribute checklists.</li>
+  <li>Here: <b>price-tier prediction</b> for trading cards from their attributes.</li>
+</ul>
+
+<h3>Multinomial vs. Bernoulli Naïve Bayes</h3>
+<p>The variants differ in how they model P(xᵢ | C), and so in what kind of data they accept.</p>
+<div class="tablebox"><table class="compare">
+  <thead><tr><th></th><th>Multinomial NB (used here)</th><th>Bernoulli NB</th></tr></thead>
+  <tbody>
+    <tr><td><b>Feature type</b></td><td>Non-negative counts or frequencies (how many times a feature occurs)</td><td>Binary: present (1) or absent (0)</td></tr>
+    <tr><td><b>Likelihood</b></td><td class="num">P(xᵢ|C) = (N_Ci + α) / (N_C + α·n)</td><td class="num">P(x|C) = Πᵢ pᵢᶜ^xᵢ · (1 − pᵢᶜ)^(1−xᵢ)</td></tr>
+    <tr><td><b>Absent features</b></td><td>Ignored: a 0 count contributes nothing</td><td>Penalized: the absence of a feature that is common in a class counts as evidence against it</td></tr>
+    <tr><td><b>Typical use</b></td><td>Word counts in long documents; count-encoded attributes</td><td>Short texts, yes/no checklists, word presence</td></tr>
+  </tbody>
+</table></div>
+<p>In the Multinomial formula, <span class="mono">N_Ci</span> is the total count of feature <i>i</i> in class <i>C</i>, <span class="mono">N_C</span> is the total of all feature counts in <i>C</i>, and <span class="mono">n</span> is the number of features. In the Bernoulli formula, <span class="mono">pᵢᶜ</span> is the fraction of class-<i>C</i> records in which feature <i>i</i> is present.</p>
+<p><b>Laplace smoothing (α).</b> If a feature never appears with a class in training, its raw likelihood is 0, and that single zero wipes out the whole product. Adding α (here α = 1) to every count keeps every probability above zero. Both models in this tab use α = 1.</p>
+</section>
+
+<!-- ============================================================ DATA PREP -->
+<section id="data-prep">
+<h2><span class="k">(b)</span>Data Prep</h2>
+<p><b>Supervised learning needs labeled data.</b> Each record must carry the correct answer (the label) so the model can learn which feature patterns go with which class. Rows without a label cannot be used to train or to test, because there is nothing to learn from or check against.</p>
+
+<h3>1. Source data and the label</h3>
+<p>The source is the March 2025 snapshot of the modern (2019–2025, Sword &amp; Shield and Scarlet &amp; Violet) and vintage (1999–2002, Base through Legendary Collection) card files: 7,213 cards in total. Each card has up to three TCGplayer market prices (Normal, Reverse Holofoil, Holofoil). I took the highest of those as the card's <b>Market Price</b> and binned it into the label <b>Price Tier</b>:</p>
+<div class="tablebox"><table class="compare">
+  <thead><tr><th>Price Tier</th><th>Rule</th><th>Cards</th><th>Share</th></tr></thead>
+  <tbody>
+    <tr><td><span class="tier low">Low</span></td><td>under $1 (bulk)</td><td class="num">4,169</td><td class="num">62.3%</td></tr>
+    <tr><td><span class="tier mid">Mid</span></td><td>$1 to under $10</td><td class="num">1,767</td><td class="num">26.4%</td></tr>
+    <tr><td><span class="tier high">High</span></td><td>$10 and up (chase cards)</td><td class="num">755</td><td class="num">11.3%</td></tr>
+  </tbody>
+</table></div>
+<p>522 cards had no market price at all. They have no label, so they were dropped before modeling. That leaves 6,691 labeled cards.</p>
+
+<figure>
+  <div class="plate wide"><img src="img_raw_sample.png" alt="Table of 10 labeled cards showing ID, name, era, supertype, subtypes, HP, types, retreat cost, set, release date, rarity, market price and price tier"></div>
+  <figcaption>Sample of the labeled data before preparation (7 modern and 3 vintage cards). Full labeled dataset: <a href="labeled_cards_raw.csv" target="_blank" rel="noopener">labeled_cards_raw.csv</a>.</figcaption>
+</figure>
+
+<h3>2. Converting every feature to non-negative counts</h3>
+<p>Python's <code>sklearn.naive_bayes.MultinomialNB</code> accepts only numeric, non-negative values, which it treats as counts. Mixed text and numbers have to be converted first:</p>
+<ul>
+  <li><b>One-hot (0/1) columns</b> for Era, Supertype, energy Type, Rarity, and release year.</li>
+  <li><b>Multi-hot columns</b> for Subtypes, since one card can be several at once ("Basic, V" sets both <code>sub_Basic</code> and <code>sub_V</code>).</li>
+  <li><b>Binned one-hot columns</b> for HP and for the largest attack damage. Raw HP values like 330 would otherwise outweigh every 0/1 feature in a count-based model.</li>
+  <li><b>Small integer counts</b> for number of attacks and retreat cost (0 to 5).</li>
+</ul>
+<p>Name, ID, artist, image links, and the price columns were left out. ID and name are identifiers, not attributes. The price columns are where the label came from, so including them would leak the answer into the features.</p>
+<figure>
+  <div class="plate wide"><img src="img_prepared_sample.png" alt="Table of 8 prepared rows with ID, Price Tier and numeric 0/1 and count columns"></div>
+  <figcaption>The same cards after preparation (12 of the 94 columns shown). Every feature is now a non-negative number. Full prepared dataset: <a href="prepared_numeric_data.csv" target="_blank" rel="noopener">prepared_numeric_data.csv</a>.</figcaption>
+</figure>
+
+<h3>3. Splitting into a Training Set and a Testing Set</h3>
+<p>The prepared data was split <b>70% / 30%</b> with <code>train_test_split(test_size=0.30, stratify=y, random_state=42)</code>:</p>
+<ul>
+  <li><b>Training Set (4,683 cards)</b> is the only data the model sees while learning its priors and likelihoods.</li>
+  <li><b>Testing Set (2,008 cards)</b> is held back and used once, to measure accuracy on cards the model has never seen.</li>
+  <li><b>Stratified</b> sampling keeps the Low / Mid / High mix the same in both sets, which matters here because High cards are only about 11% of the data.</li>
+  <li>A fixed <code>random_state</code> makes the split reproducible.</li>
+</ul>
+<div class="pair">
+  <figure>
+    <div class="plate"><img src="img_train_sample.png" alt="First 6 rows of the training set"></div>
+    <figcaption>Training Set, first 6 rows. <a href="train_set.csv" target="_blank" rel="noopener">train_set.csv</a></figcaption>
+  </figure>
+  <figure>
+    <div class="plate"><img src="img_test_sample.png" alt="First 6 rows of the testing set"></div>
+    <figcaption>Testing Set, first 6 rows. <a href="test_set.csv" target="_blank" rel="noopener">test_set.csv</a></figcaption>
+  </figure>
+</div>
+<figure>
+  <div class="plate"><img src="img_split_balance.png" alt="Stacked bars showing train and test both 62% Low, 26% Mid, 11% High"></div>
+  <figcaption>Stratification keeps the tier proportions identical in the two sets.</figcaption>
+</figure>
+
+<div class="callout">
+<p><b>Why the sets must be disjoint.</b> Every card goes to exactly one set; the code checks that the two sets share zero rows. If a card were in both, the model would be graded on a question it had already seen the answer to. Accuracy would be inflated and would no longer tell us how the model handles new cards, which is the whole point of testing. A disjoint Testing Set stands in for future, unseen data.</p>
+</div>
+</section>
+
+<!-- ============================================================ CODE -->
+<section id="code">
+<h2><span class="k">(c)</span>Code</h2>
+<p>The model is written in <b>Python</b> with pandas and scikit-learn. One script does every step on this page: labeling, count encoding, the stratified split, fitting <code>MultinomialNB(alpha=1.0)</code> (plus <code>BernoulliNB</code> for comparison), scoring, and drawing every figure.</p>
+<div class="files">
+  <a class="file" href="nb_pokemon.py" target="_blank" rel="noopener"><b>nb_pokemon.py</b><span>Full Naïve Bayes script</span></a>
+  <a class="file" href="labeled_cards_raw.csv" target="_blank" rel="noopener"><b>labeled_cards_raw.csv</b><span>Labeled sample, before prep</span></a>
+  <a class="file" href="prepared_numeric_data.csv" target="_blank" rel="noopener"><b>prepared_numeric_data.csv</b><span>All-numeric data used by NB</span></a>
+  <a class="file" href="train_set.csv" target="_blank" rel="noopener"><b>train_set.csv</b><span>4,683 rows</span></a>
+  <a class="file" href="test_set.csv" target="_blank" rel="noopener"><b>test_set.csv</b><span>2,008 rows</span></a>
+  <a class="file" href="metrics.json" target="_blank" rel="noopener"><b>metrics.json</b><span>Every number reported here</span></a>
+</div>
+<p>Run it with: <code>python nb_pokemon.py modern_pkmn_cards_mar2025.csv vintage_pkmn_cards_mar2025.csv nb_output</code></p>
+<p>The core of the modeling step:</p>
+<div class="formula">mnb = MultinomialNB(alpha=1.0).fit(X_train, y_train)
+pred = mnb.predict(X_test)
+accuracy_score(y_test, pred)
+confusion_matrix(y_test, pred, labels=["Low", "Mid", "High"])</div>
+<details class="code">
+  <summary>Show the full script (nb_pokemon.py)</summary>
+  <pre><code>&quot;&quot;&quot;
+Naive Bayes on Pokemon TCG cards: predict a card&#x27;s PRICE TIER from its attributes.
+
+Label (supervised target): Price Tier, from the March 2025 TCGplayer market price
+(highest of the Normal / Reverse Holofoil / Holofoil market prices):
+    Low  : &lt; $1
+    Mid  : $1 to &lt; $10
+    High : &gt;= $10
+
+Features: card attributes turned into non-negative COUNTS, as sklearn&#x27;s
+MultinomialNB requires (one-hot indicators + small integer counts).
+
+Usage:
+    python nb_pokemon.py &lt;modern_mar2025.csv&gt; &lt;vintage_mar2025.csv&gt; [out_dir]
+&quot;&quot;&quot;
+import sys, os, json
+import numpy as np
+import pandas as pd
+import matplotlib
+matplotlib.use(&quot;Agg&quot;)
+import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import MultinomialNB, BernoulliNB
+from sklearn.metrics import (accuracy_score, confusion_matrix,
+                             classification_report, precision_recall_fscore_support)
+
+MODERN, VINTAGE = sys.argv[1], sys.argv[2]
+OUT = sys.argv[3] if len(sys.argv) &gt; 3 else &quot;nb_output&quot;
+os.makedirs(OUT, exist_ok=True)
+SEED = 42
+TIERS = [&quot;Low&quot;, &quot;Mid&quot;, &quot;High&quot;]
+
+# ---------------------------------------------------------------- 1. load + label
+mod = pd.read_csv(MODERN);  mod[&quot;Era&quot;] = &quot;Modern&quot;
+vin = pd.read_csv(VINTAGE); vin[&quot;Era&quot;] = &quot;Vintage&quot;
+cards = pd.concat([mod, vin], ignore_index=True)
+
+price_cols = [&quot;TCG Market Price USD (Normal)&quot;,
+              &quot;TCG Market Price USD (Reverse Holofoil)&quot;,
+              &quot;TCG Market Price USD (Holofoil)&quot;]
+cards[&quot;Market Price&quot;] = cards[price_cols].max(axis=1)
+
+# Only LABELED rows can be used for supervised learning: drop cards with no price
+labeled = cards.dropna(subset=[&quot;Market Price&quot;]).copy()
+labeled[&quot;Price Tier&quot;] = pd.cut(labeled[&quot;Market Price&quot;], [0, 1, 10, np.inf],
+                               right=False, labels=TIERS).astype(str)
+print(f&quot;All cards: {len(cards)}   labeled (have a price): {len(labeled)}&quot;)
+print(labeled[&quot;Price Tier&quot;].value_counts())
+
+# ---------------------------------------------------------------- 2. features -&gt; counts
+def n_attacks(s):
+    return 0 if pd.isna(s) or s == &quot;&quot; else len(str(s).split(&quot;), &quot;))
+
+def max_damage(s):
+    if pd.isna(s):
+        return 0
+    nums = [int(&quot;&quot;.join(ch for ch in part if ch.isdigit()) or 0)
+            for part in str(s).split(&quot;(&quot;)[1:]]
+    return max(nums) if nums else 0
+
+X = pd.DataFrame(index=labeled.index)
+# one-hot categorical attributes (0/1 counts)
+for col, prefix in [(&quot;Era&quot;, &quot;era&quot;), (&quot;Supertype&quot;, &quot;super&quot;), (&quot;Types&quot;, &quot;type&quot;),
+                    (&quot;Rarity&quot;, &quot;rarity&quot;)]:
+    X = X.join(pd.get_dummies(labeled[col].fillna(&quot;None&quot;), prefix=prefix).astype(int))
+# subtypes can hold several tokens (&quot;Basic, V&quot;) -&gt; multi-hot
+sub = labeled[&quot;Subtypes&quot;].fillna(&quot;None&quot;).str.get_dummies(sep=&quot;, &quot;).add_prefix(&quot;sub_&quot;)
+X = X.join(sub)
+# release year (set age) one-hot
+X = X.join(pd.get_dummies(labeled[&quot;Release Date&quot;].str[:4], prefix=&quot;year&quot;).astype(int))
+# HP bins one-hot (raw HP would swamp the other counts in a multinomial model)
+hp_bin = pd.cut(labeled[&quot;HP&quot;].fillna(0), [-1, 0, 60, 100, 150, 220, 1000],
+                labels=[&quot;none&quot;, &quot;1-60&quot;, &quot;61-100&quot;, &quot;101-150&quot;, &quot;151-220&quot;, &quot;221+&quot;])
+X = X.join(pd.get_dummies(hp_bin, prefix=&quot;hp&quot;).astype(int))
+# damage bins one-hot
+dmg = labeled[&quot;Attacks&quot;].apply(max_damage)
+dmg_bin = pd.cut(dmg, [-1, 0, 50, 120, 200, 10000],
+                 labels=[&quot;0&quot;, &quot;1-50&quot;, &quot;51-120&quot;, &quot;121-200&quot;, &quot;201+&quot;])
+X = X.join(pd.get_dummies(dmg_bin, prefix=&quot;dmg&quot;).astype(int))
+# small integer counts
+X[&quot;n_attacks&quot;] = labeled[&quot;Attacks&quot;].apply(n_attacks)
+X[&quot;retreat_cost&quot;] = labeled[&quot;Retreat Cost&quot;].fillna(0).astype(int)
+X.columns = [c.replace(&quot; &quot;, &quot;_&quot;) for c in X.columns]
+y = labeled[&quot;Price Tier&quot;]
+assert (X.values &gt;= 0).all(), &quot;MultinomialNB needs non-negative features&quot;
+print(&quot;Feature matrix:&quot;, X.shape)
+
+# save the raw labeled sample and the prepared numeric sample
+raw_cols = [&quot;ID&quot;, &quot;Name&quot;, &quot;Era&quot;, &quot;Supertype&quot;, &quot;Subtypes&quot;, &quot;HP&quot;, &quot;Types&quot;, &quot;Attacks&quot;,
+            &quot;Retreat Cost&quot;, &quot;Set Name&quot;, &quot;Release Date&quot;, &quot;Rarity&quot;, &quot;Market Price&quot;,
+            &quot;Price Tier&quot;]
+labeled[raw_cols].to_csv(f&quot;{OUT}/labeled_cards_raw.csv&quot;, index=False)
+prepared = X.copy(); prepared.insert(0, &quot;Price Tier&quot;, y); prepared.insert(0, &quot;ID&quot;, labeled[&quot;ID&quot;])
+prepared.to_csv(f&quot;{OUT}/prepared_numeric_data.csv&quot;, index=False)
+
+# ---------------------------------------------------------------- 3. train / test split
+ids = labeled[&quot;ID&quot;]
+X_train, X_test, y_train, y_test, id_train, id_test = train_test_split(
+    X, y, ids, test_size=0.30, random_state=SEED, stratify=y)
+assert set(X_train.index).isdisjoint(X_test.index), &quot;train and test must be disjoint&quot;
+train_df = X_train.copy(); train_df.insert(0, &quot;Price Tier&quot;, y_train); train_df.insert(0, &quot;ID&quot;, id_train)
+test_df = X_test.copy();   test_df.insert(0, &quot;Price Tier&quot;, y_test);   test_df.insert(0, &quot;ID&quot;, id_test)
+train_df.to_csv(f&quot;{OUT}/train_set.csv&quot;, index=False)
+test_df.to_csv(f&quot;{OUT}/test_set.csv&quot;, index=False)
+print(f&quot;Train: {len(X_train)}  Test: {len(X_test)}  overlap: &quot;
+      f&quot;{len(set(X_train.index) &amp; set(X_test.index))}&quot;)
+
+# ---------------------------------------------------------------- 4. models
+mnb = MultinomialNB(alpha=1.0).fit(X_train, y_train)
+pred = mnb.predict(X_test)
+acc = accuracy_score(y_test, pred)
+cm = confusion_matrix(y_test, pred, labels=TIERS)
+print(&quot;\nMultinomial NB accuracy:&quot;, round(acc, 4))
+print(classification_report(y_test, pred, labels=TIERS, digits=3))
+
+bnb = BernoulliNB(alpha=1.0, binarize=0.5).fit(X_train, y_train)
+bpred = bnb.predict(X_test)
+bacc = accuracy_score(y_test, bpred)
+bcm = confusion_matrix(y_test, bpred, labels=TIERS)
+print(&quot;Bernoulli NB accuracy:&quot;, round(bacc, 4))
+
+baseline = (y_test == y_train.value_counts().idxmax()).mean()
+print(&quot;Majority-class baseline:&quot;, round(baseline, 4))
+
+# accuracy by era
+era_test = labeled.loc[X_test.index, &quot;Era&quot;]
+era_acc = {e: float(accuracy_score(y_test[era_test == e], pred[(era_test == e).values]))
+           for e in [&quot;Modern&quot;, &quot;Vintage&quot;]}
+
+# most indicative features per class: log P(f|class) - mean log P(f|other classes)
+flp = pd.DataFrame(mnb.feature_log_prob_, index=mnb.classes_, columns=X.columns)
+top = {}
+for c in TIERS:
+    others = [o for o in TIERS if o != c]
+    diff = flp.loc[c] - flp.loc[others].mean()
+    top[c] = diff.sort_values(ascending=False).head(8).round(3).to_dict()
+
+p, r, f, s = precision_recall_fscore_support(y_test, pred, labels=TIERS)
+metrics = dict(accuracy=acc, bernoulli_accuracy=bacc, baseline=baseline,
+               n_cards=len(cards), n_labeled=len(labeled), n_features=X.shape[1],
+               n_train=len(X_train), n_test=len(X_test),
+               class_counts=y.value_counts().reindex(TIERS).to_dict(),
+               train_counts=y_train.value_counts().reindex(TIERS).to_dict(),
+               test_counts=y_test.value_counts().reindex(TIERS).to_dict(),
+               confusion_matrix=cm.tolist(), bernoulli_confusion_matrix=bcm.tolist(),
+               per_class={t: dict(precision=float(p[i]), recall=float(r[i]),
+                                  f1=float(f[i]), support=int(s[i]))
+                          for i, t in enumerate(TIERS)},
+               era_accuracy=era_acc, top_features=top,
+               priors=dict(zip(mnb.classes_, np.exp(mnb.class_log_prior_).round(4))))
+with open(f&quot;{OUT}/metrics.json&quot;, &quot;w&quot;) as fh:
+    json.dump(metrics, fh, indent=2, default=float)
+
+# ---------------------------------------------------------------- 5. figures
+INK, INK2, GRID, SURF = &quot;#0b0b0b&quot;, &quot;#52514e&quot;, &quot;#e4e3df&quot;, &quot;#fcfcfb&quot;
+TIER_COL = {&quot;Low&quot;: &quot;#2a78d6&quot;, &quot;Mid&quot;: &quot;#eb6834&quot;, &quot;High&quot;: &quot;#1baf7a&quot;}
+plt.rcParams.update({&quot;font.family&quot;: &quot;DejaVu Sans&quot;, &quot;font.size&quot;: 10,
+                     &quot;axes.edgecolor&quot;: GRID, &quot;axes.labelcolor&quot;: INK2,
+                     &quot;xtick.color&quot;: INK2, &quot;ytick.color&quot;: INK2,
+                     &quot;figure.facecolor&quot;: SURF, &quot;axes.facecolor&quot;: SURF})
+
+def table_png(df, path, title, col_w=None):
+    df = df.astype(object).where(df.notna(), &quot;&quot;).astype(str).apply(lambda c: c.str.slice(0, 24))
+    fig_w = max(8, 1.45 * df.shape[1]); fig_h = 0.3 * (len(df) + 2)
+    fig, ax = plt.subplots(figsize=(fig_w, fig_h)); ax.axis(&quot;off&quot;)
+    t = ax.table(cellText=df.values, colLabels=df.columns, loc=&quot;center&quot;, cellLoc=&quot;left&quot;)
+    t.auto_set_font_size(False); t.set_fontsize(8); t.scale(1, 1.35)
+    t.auto_set_column_width(list(range(df.shape[1])))
+    for (r_, c_), cell in t.get_celld().items():
+        cell.set_edgecolor(GRID)
+        if r_ == 0:
+            cell.set_facecolor(&quot;#eef3fb&quot;); cell.set_text_props(weight=&quot;bold&quot;, color=INK)
+        else:
+            cell.set_facecolor(SURF); cell.set_text_props(color=INK)
+    ax.set_title(title, loc=&quot;left&quot;, color=INK, fontsize=11, weight=&quot;bold&quot;)
+    fig.savefig(path, dpi=150, bbox_inches=&quot;tight&quot;); plt.close(fig)
+
+sample_raw = pd.concat([
+    labeled[labeled.Era == &quot;Modern&quot;][raw_cols].sample(7, random_state=SEED),
+    labeled[labeled.Era == &quot;Vintage&quot;][raw_cols].sample(3, random_state=SEED)]).drop(columns=[&quot;Attacks&quot;])
+sample_raw[&quot;Market Price&quot;] = sample_raw[&quot;Market Price&quot;].map(&quot;${:,.2f}&quot;.format)
+table_png(sample_raw, f&quot;{OUT}/img_raw_sample.png&quot;, &quot;Labeled raw data (10 random cards)&quot;)
+
+show_cols = [&quot;ID&quot;, &quot;Price Tier&quot;, &quot;era_Vintage&quot;, &quot;super_Pokémon&quot;, &quot;type_Fire&quot;,
+             &quot;rarity_Common&quot;, &quot;rarity_Rare_Holo&quot;, &quot;sub_Basic&quot;, &quot;sub_V&quot;, &quot;hp_61-100&quot;,
+             &quot;n_attacks&quot;, &quot;retreat_cost&quot;]
+show_cols = [c for c in show_cols if c in train_df.columns]
+table_png(prepared.loc[sample_raw.index[:8], show_cols], f&quot;{OUT}/img_prepared_sample.png&quot;,
+          f&quot;Prepared numeric data (8 rows, 12 of {X.shape[1]+2} columns)&quot;)
+table_png(train_df[show_cols].head(6), f&quot;{OUT}/img_train_sample.png&quot;,
+          f&quot;Training set: {len(train_df)} rows (first 6 shown)&quot;)
+table_png(test_df[show_cols].head(6), f&quot;{OUT}/img_test_sample.png&quot;,
+          f&quot;Testing set: {len(test_df)} rows (first 6 shown)&quot;)
+
+# class balance in train vs test
+fig, ax = plt.subplots(figsize=(7, 2.2))
+xs = np.arange(2); left = np.zeros(2)
+for t in TIERS:
+    vals = np.array([metrics[&quot;train_counts&quot;][t] / len(y_train), metrics[&quot;test_counts&quot;][t] / len(y_test)])
+    ax.barh(xs, vals, left=left, color=TIER_COL[t], label=t, height=0.55, edgecolor=SURF, linewidth=2)
+    for i, v in enumerate(vals):
+        ax.text(left[i] + v / 2, xs[i], f&quot;{t}\n{v:.0%}&quot;, ha=&quot;center&quot;, va=&quot;center&quot;, color=&quot;white&quot;,
+                fontsize=9, weight=&quot;bold&quot;)
+    left += vals
+ax.set_yticks(xs, [f&quot;Train (n={len(y_train)})&quot;, f&quot;Test (n={len(y_test)})&quot;])
+ax.set_xlim(0, 1); ax.xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
+ax.spines[[&quot;top&quot;, &quot;right&quot;]].set_visible(False)
+ax.set_title(&quot;Stratified split keeps the same tier mix in both sets&quot;, loc=&quot;left&quot;, color=INK, weight=&quot;bold&quot;)
+ax.legend(ncol=3, frameon=False, loc=&quot;upper center&quot;, bbox_to_anchor=(0.5, -0.15))
+fig.savefig(f&quot;{OUT}/img_split_balance.png&quot;, dpi=150, bbox_inches=&quot;tight&quot;); plt.close(fig)
+
+# confusion matrices
+cmap = LinearSegmentedColormap.from_list(&quot;blue&quot;, [&quot;#f3f7fd&quot;, &quot;#9cc2ef&quot;, &quot;#2a78d6&quot;, &quot;#103d73&quot;])
+def cm_png(m, path, title):
+    fig, ax = plt.subplots(figsize=(5, 4.4))
+    rowpct = m / m.sum(axis=1, keepdims=True)
+    ax.imshow(rowpct, cmap=cmap, vmin=0, vmax=1)  # shade by row %, so each class reads fairly
+    for i in range(3):
+        for j in range(3):
+            pct = m[i, j] / m[i].sum()
+            ax.text(j, i, f&quot;{m[i, j]}\n({pct:.0%} of row)&quot;, ha=&quot;center&quot;, va=&quot;center&quot;,
+                    color=&quot;white&quot; if pct &gt; 0.45 else INK, fontsize=10)
+    ax.set_xticks(range(3), TIERS); ax.set_yticks(range(3), TIERS)
+    ax.set_xlabel(&quot;Predicted tier&quot;); ax.set_ylabel(&quot;Actual tier&quot;)
+    ax.set_title(title, loc=&quot;left&quot;, color=INK, weight=&quot;bold&quot;)
+    for s_ in ax.spines.values(): s_.set_visible(False)
+    fig.savefig(path, dpi=150, bbox_inches=&quot;tight&quot;); plt.close(fig)
+cm_png(cm, f&quot;{OUT}/img_confusion_multinomial.png&quot;, f&quot;Multinomial NB  (accuracy {acc:.1%})&quot;)
+cm_png(bcm, f&quot;{OUT}/img_confusion_bernoulli.png&quot;, f&quot;Bernoulli NB  (accuracy {bacc:.1%})&quot;)
+
+# accuracy comparison
+fig, ax = plt.subplots(figsize=(7, 2.8))
+names = [&quot;Majority-class guess&quot;, &quot;Bernoulli NB&quot;, &quot;Multinomial NB&quot;]
+vals = [baseline, bacc, acc]; cols = [&quot;#b9b8b2&quot;, &quot;#eb6834&quot;, &quot;#2a78d6&quot;]
+ax.barh(names, vals, color=cols, height=0.55)
+for i, v in enumerate(vals):
+    ax.text(v + 0.01, i, f&quot;{v:.1%}&quot;, va=&quot;center&quot;, color=INK, fontsize=10)
+ax.set_xlim(0, 1); ax.xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
+ax.spines[[&quot;top&quot;, &quot;right&quot;]].set_visible(False); ax.grid(axis=&quot;x&quot;, color=GRID); ax.set_axisbelow(True)
+ax.set_title(&quot;Test-set accuracy&quot;, loc=&quot;left&quot;, color=INK, weight=&quot;bold&quot;)
+fig.savefig(f&quot;{OUT}/img_accuracy.png&quot;, dpi=150, bbox_inches=&quot;tight&quot;); plt.close(fig)
+
+# per-class precision / recall
+fig, ax = plt.subplots(figsize=(7, 3))
+w = 0.36; xs = np.arange(3)
+ax.bar(xs - w/2 - 0.01, p, w, color=&quot;#2a78d6&quot;, label=&quot;Precision&quot;)
+ax.bar(xs + w/2 + 0.01, r, w, color=&quot;#eb6834&quot;, label=&quot;Recall&quot;)
+for i in range(3):
+    ax.text(i - w/2 - 0.01, p[i] + 0.02, f&quot;{p[i]:.2f}&quot;, ha=&quot;center&quot;, fontsize=9, color=INK)
+    ax.text(i + w/2 + 0.01, r[i] + 0.02, f&quot;{r[i]:.2f}&quot;, ha=&quot;center&quot;, fontsize=9, color=INK)
+ax.set_xticks(xs, TIERS); ax.set_ylim(0, 1.1)
+ax.spines[[&quot;top&quot;, &quot;right&quot;]].set_visible(False); ax.grid(axis=&quot;y&quot;, color=GRID); ax.set_axisbelow(True)
+ax.legend(frameon=False, ncol=2, loc=&quot;upper right&quot;)
+ax.set_title(&quot;Multinomial NB precision and recall by tier&quot;, loc=&quot;left&quot;, color=INK, weight=&quot;bold&quot;)
+fig.savefig(f&quot;{OUT}/img_precision_recall.png&quot;, dpi=150, bbox_inches=&quot;tight&quot;); plt.close(fig)
+
+# indicative features
+fig, axes = plt.subplots(1, 3, figsize=(12, 3.8), sharex=False)
+for ax, t in zip(axes, TIERS):
+    items = list(top[t].items())[:6][::-1]
+    ax.barh([k for k, _ in items], [v for _, v in items], color=TIER_COL[t], height=0.6)
+    ax.set_title(f&quot;{t} tier&quot;, loc=&quot;left&quot;, color=INK, weight=&quot;bold&quot;)
+    ax.spines[[&quot;top&quot;, &quot;right&quot;]].set_visible(False); ax.tick_params(labelsize=8)
+    ax.grid(axis=&quot;x&quot;, color=GRID); ax.set_axisbelow(True)
+fig.suptitle(&quot;Features most characteristic of each tier (log-probability lift vs other tiers)&quot;,
+             x=0.01, ha=&quot;left&quot;, color=INK, weight=&quot;bold&quot;)
+fig.tight_layout()
+fig.savefig(f&quot;{OUT}/img_top_features.png&quot;, dpi=150, bbox_inches=&quot;tight&quot;); plt.close(fig)
+
+print(&quot;\nDone. Outputs in&quot;, OUT)
+</code></pre>
+</details>
+</section>
+
+<!-- ============================================================ RESULTS -->
+<section id="results">
+<h2><span class="k">(d)</span>Results</h2>
+<p>On the 2,008 held-out test cards, <b>Multinomial NB scored 80.4% accuracy</b>. Always guessing the most common tier (Low) would score 62.3%, so the model adds about 18 percentage points over that baseline. Bernoulli NB, trained on the same features reduced to present/absent, scored 75.4%.</p>
+<figure>
+  <div class="plate"><img src="img_accuracy.png" alt="Bar chart: Multinomial NB 80.4%, Bernoulli NB 75.4%, majority-class guess 62.3%"></div>
+</figure>
+
+<h3>Confusion matrix</h3>
+<p>Rows are each card's actual tier; columns are what the model predicted. The diagonal holds the correct predictions. Shading follows the percentage of each row, so the smaller High tier reads as clearly as Low.</p>
+<div class="pair">
+  <figure>
+    <div class="plate"><img src="img_confusion_multinomial.png" alt="Multinomial NB confusion matrix"></div>
+    <figcaption>Multinomial NB: 1,615 of 2,008 test cards on the diagonal.</figcaption>
+  </figure>
+  <figure>
+    <div class="plate"><img src="img_confusion_bernoulli.png" alt="Bernoulli NB confusion matrix"></div>
+    <figcaption>Bernoulli NB, for comparison.</figcaption>
+  </figure>
+</div>
+<ul>
+  <li><b>Low cards are easy.</b> 87% of bulk cards were caught, with 91% precision. Commons and uncommons are almost always under $1.</li>
+  <li><b>Mid is the catch-all.</b> 76% recall, but it also absorbs mistakes from both sides: some Low cards look like Mid (holo rares, V cards), and many High cards are predicted Mid.</li>
+  <li><b>High cards are the hard case.</b> Only 52% were recognized. Two-fifths were labeled Mid. When the model does say High, it is right 70% of the time.</li>
+  <li><b>Errors are almost always one tier off.</b> Only 26 test cards were confused between Low and High.</li>
+</ul>
+<figure>
+  <div class="plate"><img src="img_precision_recall.png" alt="Precision and recall by tier"></div>
+  <figcaption>Precision: of the cards predicted as a tier, the share that were correct. Recall: of the cards actually in a tier, the share the model found.</figcaption>
+</figure>
+
+<h3>What the model learned</h3>
+<p>Because NB stores a probability for every feature in every class, we can read it directly. The chart ranks features by how much more likely they are within a tier than in the other two (difference in log P(feature | tier)).</p>
+<figure>
+  <div class="plate wide"><img src="img_top_features.png" alt="Three bar charts listing the features most characteristic of the Low, Mid and High tiers"></div>
+  <figcaption>Low is defined by ordinary rarities. Mid is defined by shiny, VMAX, and ultra-rare printings. High is defined by Special Illustration Rare, Illustration Rare, and 2002 release year (Legendary Collection).</figcaption>
+</figure>
+<p><b>Era matters.</b> Accuracy was 81.7% on modern test cards but 61.1% on vintage ones. Vintage prices depend on condition, nostalgia, and specific Pokémon (a Base Set Charizard against a Base Set Ponyta), and those things are not in the printed attributes. Vintage cards are also only about 6% of the training data.</p>
+</section>
+
+<!-- ============================================================ CONCLUSIONS -->
+<section id="conclusions">
+<h2><span class="k">(e)</span>Conclusions</h2>
+<p>A card's printed attributes alone predict its price tier correctly about <b>4 times in 5</b>. That is well above guessing, from a model that trains in under a second. For a collector, a seller sorting a box, or anyone looking at the hobby's economics, this says several things:</p>
+<ul>
+  <li><b>Rarity is the main driver of value.</b> The rarity symbol carried most of the signal. Common and Uncommon cards are reliably bulk, which supports the usual practice of sorting by rarity first.</li>
+  <li><b>Modern premium printings are what sell.</b> Special Illustration Rare, Illustration Rare, Hyper Rare, and rainbow or shiny printings mark the cards most likely to reach $10 or more. Ordinary holos and V cards mostly land in the $1–$10 range.</li>
+  <li><b>Set age is a value signal.</b> Release year was among the strongest High-tier features. Older vintage sets (especially Legendary Collection, 2002) carry a premium regardless of the card's game stats.</li>
+  <li><b>Game stats barely matter for price.</b> HP, damage, retreat cost, and energy type ranked far below rarity and era. Collectors pay for scarcity and artwork, not playability.</li>
+  <li><b>The model can't spot the chase cards inside a rarity.</b> About half of High-tier cards were underpriced as Mid. What separates a $15 card from a $3 card of the same rarity is usually the specific Pokémon (Charizard, Umbreon, Pikachu), the artwork, and demand. Those are not among these features. Adding the Pokémon's name or popularity, or the artist, would likely help most for the High tier and for vintage cards.</li>
+</ul>
+<p>In practical terms, the model can be used as a fast first-pass sorter. A card it calls Low can be put in bulk with confidence. A card it calls Mid or High is worth looking up individually.</p>
+</section>
+</main>
+</div>
