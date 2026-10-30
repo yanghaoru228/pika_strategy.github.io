@@ -1004,6 +1004,16 @@
     <p><b>Tree 3: Gini, depth 4, without rarity</b> This tree tests what the model can learn when the official rarity is hidden. It recovers most of the signal from <code>set_position</code>: cards numbered past about 69% of their set's highest number are the full-art and secret slots. 
       It then uses Pokémon popularity and Dex number to pick out the High cards: a frequently printed Pokémon from the first three generations (Dex number ≤ 292) in a late set slot is predicted High. Accuracy is 80.6%, only half a point below Tree 1, which had rarity available.</p>
   <h2>Conclusion</h2>
+    <p>Decision trees can sort Pokémon cards into Low, Mid and High price tiers with about 86% accuracy from printed information alone, well above the 63% you would get by guessing "under a dollar" for everything. The trees also make it clear <em>why</em> a card is priced the way it is.</p>
+    <ul>
+      <li><b>How a card is printed matters more than how it plays.</b>Whether a card comes in both normal and reverse-holo versions was the most important feature in every tree. That one fact separates bulk commons and uncommons (95% under $1) from the holo-only rares and chase cards. 
+        HP, attack damage and retreat cost added almost nothing. Collectors price scarcity and art, not battle strength.</li>
+      <li><b>Age is a shortcut to High.</b>Every multi-printing vintage card (1999–2002) the tree saw was worth more than $10, and 46% of all priced vintage cards are High compared with 9% of modern ones. An old Base Set uncommon can outprice a brand-new ultra rare.</li>
+      <li><b>Modern High cards are the hard part.</b>Among modern ultra and secret rares, High and Mid overlap heavily. The tree needs extra cues to tell them apart: Special Illustration and Hyper rares, recently released sets, and popular Pokémon. 
+        A popular early-generation Pokémon in a late "secret" set slot is the clearest High signal the no-rarity tree found.</li>
+      <li><b>Rarity can be inferred.</b>With rarity removed, set position and Pokémon popularity recovered almost the same accuracy (80.6% vs 81.1%). The card number alone reveals much of what the rarity symbol says.</li>
+      <li><b>Bigger trees are not better.</b>The unlimited tree memorized its training data (99.8%) yet did no better on new cards than a 39-leaf tree. Limiting depth and leaf size gave a simpler model that generalizes just as well.</li>
+    </ul>
     
     
     
