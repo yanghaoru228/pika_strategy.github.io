@@ -471,7 +471,6 @@
     <p>
       The code of clustering analysis can be found <a href="pkmn_clustering.py">here</a>. Section 1 and 2 are used to preprocessing the data. Section 3 applies elbow and Silhouette methods to find the optimal number of clustering (k).
       Section 4 constructs the Hierarchical clustering with cosine distance. Section 5 plots the clustering from k-means and H-clust on the PC1 and PC2 space, compare their difference and describe the feature of each clusters.
-      Use R or Python to code k-means clustering and to code hierarchical clustering. Use Cosine Similarity as the distance measure for the h-clust.
     </p>
 
     <h2>Results</h2>
@@ -1041,7 +1040,7 @@
     <img src="assets/decision_tree/tree1_gini_d3.png" alt="dec_tree_tree1" class="result-chart">
     <p><b>Tree 2: Entropy, depth 6 (best)</b> Allowing three more levels lets the tree separate modern chase cards from ordinary ultra rares. Below the first split it uses rarity tier (Special Illustration, Hyper and Secret rares vs. regular ultras), 
       how recently the card came out, the Pokémon's Dex number and popularity, and the vintage flag. High recall rises from 16% to 65% while overall accuracy reaches 86.5%, and training and test accuracy are almost identical, so this tree is not overfitting.</p>
-    <img src="assets/decision_tree/tree2_entropy_d6.png" alt="dec_tree_tree2" class="result-chart">
+    <img src="assets/decision_tree/tree2_full.png" alt="dec_tree_tree2" class="result-chart">
     <p><b>Tree 3: Gini, depth 4, without rarity</b> This tree tests what the model can learn when the official rarity is hidden. It recovers most of the signal from <code>set_position</code>: cards numbered past about 69% of their set's highest number are the full-art and secret slots. 
       It then uses Pokémon popularity and Dex number to pick out the High cards: a frequently printed Pokémon from the first three generations (Dex number ≤ 292) in a late set slot is predicted High. Accuracy is 80.6%, only half a point below Tree 1, which had rarity available.</p>
     <img src="assets/decision_tree/tree3_gini_no_rarity.png" alt="dec_tree_tree3" class="result-chart">
