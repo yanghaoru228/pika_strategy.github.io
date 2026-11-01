@@ -914,13 +914,23 @@
     <h2>Overview</h2>
     <p>A decision tree is a supervised model that predicts a label by asking a sequence of yes/no questions about the features. Each internal node tests one feature against a threshold ("is the rarity tier above 4?"), each branch is an answer, 
       and each leaf holds a prediction: the majority class of the training rows that ended up there (for classification).</p>
+    <p>Trees are used for classification (spam or not, which price tier), regression (predicting a price directly), and as the building block of stronger ensembles such as Random Forests and gradient-boosted trees. Their biggest strength is that they are readable. 
+      Anyone can follow a path from the root to a leaf and see exactly why a card was labeled "High". They also handle mixed feature types, need no scaling, and capture interactions automatically, since a question asked lower in the tree only applies to the cards that reached that branch.</p>
+    <img src="assets/decision_tree/example tree.png" alt="dec_tree_example_tree" class="result-chart">
+    <p>Anatomy of a decision tree, using questions the real model in section (d) actually learned. A card enters at the root and follows one path down to a leaf.</p>
+    <img src="assets/decision_tree/decision_regions.png" alt="dec_tree_decision_region" class="result-chart">
+    <p>What a tree does geometrically. Fit on only two features (rarity tier and card age), a depth-3 tree carves the space into axis-aligned rectangles and gives each one a label. 
+      Old holo rares (rarity 3, >5 years) become a High region; modern ultra and secret rares (4–6) land in Mid, where High and Mid cards are badly mixed. That mixing is what impurity measures.</p>
   
     <p><b>Gini, Entropy and Information Gain.</b>To grow a tree, the algorithm has to decide which question to ask at each node. It tries every feature and every candidate threshold and keeps the split whose children are the most "pure", 
       meaning each child is dominated by one class. Gini impurity and entropy are two ways to put a number on impurity; information gain measures how much a split reduces it. The follwoing are the formulas, where $p_i = $ share of class $i$ in a node.</p>
       $$\text{Gini(node) } = 1 − \sum_i p_i^2, \qquad 0 = \text{pure}, \quad 0.667 \text{ max for 3 classes}$$
       $$\text{Entropy(node)} = − \sum_i p_i · \log_2 p_i, \qquad 0 = \text{pure}, \quad 1.585 \text{max for 3 classes}$$
       $$\text{Gain(split) } = \text{Impurity(parent) } − \sum_k (n_k / n) \cdot \text{Impurity(child_k)}$$
-    <p>Both measures are zero when a node holds a single class and largest when the classes are evenly mixed. Gini is slightly cheaper to compute (no logarithm) and is scikit-learn's default; entropy comes from information theory and penalizes mixed nodes a little more sharply. In practice they usually pick the same or very similar splits. The weighted average in the gain formula matters: a split that creates one tiny pure child and one huge mixed child should not score well, so each child counts in proportion to its size.</p>
+    <p>Both measures are zero when a node holds a single class and largest when the classes are evenly mixed. Gini is slightly cheaper to compute (no logarithm) and is scikit-learn's default; entropy comes from information theory and penalizes mixed nodes a little more sharply. 
+      In practice they usually pick the same or very similar splits. The weighted average in the gain formula matters: a split that creates one tiny pure child and one huge mixed child should not score well, so each child counts in proportion to its size.</p>
+    <img src="assets/decision_tree/gini_vs_entropy.png" alt="dec_tree_gini_vs_entropy" class="result-chart">
+    
     <p><b>Worked example: which question splits ten cards better?</b> Take ten cards: 5 are High and 5 are Low. Compare two candidate questions.</p>
     <table>
     <thead>
