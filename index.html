@@ -1023,6 +1023,11 @@
     <p>In the following, the price tires are color-coded in all the figures. "Low" is in blue, "Mid" is in orange, and "High" is in green.</p> 
 
   <h2>Code</h2>
+    <p>
+      The code of decision tree analysis can be found <a href="pkmn_clustering.py">here</a>. Section 1 and 2 are used to preprocessing the data: the cards are categorized into high, mid, low price tires and the quanlitative features are converted to numerical values. 
+      Section 3 splits the data into training set and testing set. Section 4 constructs 4 trees and the tree without depth limit is overfitting, so it's omitted. The performance of the rest of three trees are scored using Gini and Entropy. 
+      Section 5 plots the tree structures, their confusion matrices, and their feature importance based on entropy and Gini.
+    </p>
   <h2>Results</h2>
     <p>Every tree was trained on the same 5,018 cards and scored on the same 1,673 unseen test cards. Always guessing the most common tier (Low) would score 62.8%, so that is the bar to beat.</p>
     <table>
@@ -1044,7 +1049,7 @@
     <p><b>Tree 3: Gini, depth 4, without rarity</b> This tree tests what the model can learn when the official rarity is hidden. It recovers most of the signal from <code>set_position</code>: cards numbered past about 69% of their set's highest number are the full-art and secret slots. 
       It then uses Pokémon popularity and Dex number to pick out the High cards: a frequently printed Pokémon from the first three generations (Dex number ≤ 292) in a late set slot is predicted High. Accuracy is 80.6%, only half a point below Tree 1, which had rarity available.</p>
     <img src="assets/decision_tree/tree3_gini_no_rarity.png" alt="dec_tree_tree3" class="result-chart">
-    <p><b>Confusion Matrices</b>Rows are the true tier and columns the predicted tier, so the diagonal counts correct predictions. In all three trees, almost every mistake is between neighbouring tiers. Tree 2 sends only 7 High cards to Low and no Low cards to High. Most of its errors sit near the $1 and $10 cut-offs, where a few cents or dollars change the label.</p>
+    <p><b>Confusion Matrices</b> Rows are the true tier and columns the predicted tier, so the diagonal counts correct predictions. In all three trees, almost every mistake is between neighbouring tiers. Tree 2 sends only 7 High cards to Low and no Low cards to High. Most of its errors sit near the $1 and $10 cut-offs, where a few cents or dollars change the label.</p>
     <img src="assets/decision_tree/confusion_matrices.png" alt="dec_tree_CM" class="result-chart">
     <table>
     <thead><tr><th>Tree</th><th class="n">Accuracy</th><th class="n">Low prec. / recall</th><th class="n">Mid prec. / recall</th><th class="n">High prec. / recall</th></tr></thead>
