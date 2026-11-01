@@ -818,7 +818,7 @@
   <p>Supervised learning needs labeled data. Each record must carry the correct answer (the label) so the model can learn which feature patterns go with which class. Rows without a label cannot be used to train or to test, because there is nothing to learn from or check against.</p>
   <p>The dataset includes the information about 7213 cards in total, and there are 522 cards had no market price at all.
     The value of the cards is the main interest of this project, hence the labeling is based on the market price, so the cards with no market price were dropped before modeling. 
-    That leaves 6691 labeled cards.</p>
+    That leaves 6691 labeled cards. The labeled dataset can be found <a href="Data/labeled_cards_raw.csv">here</a>.</p>
   <table>
     <thead>
       <tr>
@@ -856,9 +856,9 @@
   <li><b>Binned one-hot columns</b> for HP and for the largest attack damage. Raw HP values like 330 would otherwise outweigh every 0/1 feature in a count-based model.</li>
   <li><b>Small integer counts</b> for number of attacks and retreat cost (0 to 5).</li>
 </ul>
-<p>Name, ID, artist, image links, and the price columns were left out. ID and name are identifiers, not attributes. The price columns are where the label came from, so including them would leak the answer into the features.</p>
+<p>Name, ID, artist, image links, and the price columns were left out. ID and name are identifiers, not attributes. The price columns are where the label came from, so including them would leak the answer into the features. The labeled data with numeric features can be found <a href="Data/prepared_numeric_data.csv">here</a>. </p>
 <img src="assets/naive_bayes/img_prepared_sample.png" alt="naive_bayes_prepared_sample" class="result-chart">
-<p>Next is to splitting the dataset into a training set and testing set. </p>
+<p>Next is to splitting the dataset into a <a href="Data/dec_tree_train_set.csv">training set</a> and <a href="Data/dec_tree_test_set.csv">testing set</a>. </p>
 <ul>
   <li><b>Training Set (70%, 4683 cards)</b> is the only data the model sees while learning its priors and likelihoods.</li>
   <li><b>Testing Set (30%, 2008 cards)</b> is held back and used once, to measure accuracy on cards the model has never seen.</li>
@@ -1007,7 +1007,7 @@
 
     <h2>Data Prep</h2>
     <p>Supervised learning needs labeled data. Just like Naive Bayes, the cards are labeled as "Low", "Mid", and "High" price tiers, leaving 6691 labeled cards. Because scikit-learn trees only accept numbers. Text columns were converted into ordinal codes, 0/1 flags, counts, or measurements. 
-      The price itself is never used as a feature, since the label is derived from it. Name, set and price stay in the files for reference only.
+      The price itself is never used as a feature, since the label is derived from it. Name, set and price stay in the files for reference only. The labeled data with numeric features can be found <a href="Data/prepared_numeric_data.csv">here</a>.
     </p>
     <table>
       <thead><tr><th>Feature</th><th>Built from</th><th>Meaning</th></tr></thead>
@@ -1026,7 +1026,7 @@
     </table>
     <img src="assets/decision_tree/clean_sample.png" alt="dec_tree_clean_sample" class="result-chart">
     
-    <p>Next is to splitting the dataset into a training set and testing set. </p>
+    <p>Next is to splitting the dataset into a <a href="Data/naive_bayes_train_set.csv">training set</a> and <a href="Data/naive_bayes_test_set.csv">testing set</a>. </p>
   <ul>
     <li><b>Training Set (75%, 5018 cards)</b>  A tree that is scored on cards it trained on is being asked about answers it has already memorized, so the score says nothing about new cards. </li>
     <li><b>Testing Set (25%, 1673 cards)</b> This is a disjoint set from the training set. Only the test score is an honest estimate of how the model will do on cards it has never seen.</li>
