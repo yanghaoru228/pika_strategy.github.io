@@ -1092,6 +1092,53 @@
       Cards that fail all of them can usually go in the bulk box.</p>
   </section>
 
+  <!-- ============================================= -->
+  <!-- TAB 7: Regression -->
+  <!-- ============================================= -->
+  <section id="regression" class="tab-panel active" role="tabpanel">
+    <h2>Overview</h2>
+    <p><strong>Regression</strong> is a family of supervised learning methods that learn a relationship between input features (here, things printed on a card such as HP, rarity, and release date) and a target we want to predict. The two methods on this page share the same core idea, a weighted sum of the features, but they answer different kinds of questions.</p>
+    
+  <p>Linear regression predicts a <em>continuous numeric value</em>. It assumes the target is roughly a straight-line (linear) combination of the features:</p>
+    $$\hat{y} = b_0 + b_1x_1 + b_2x_2 + ... + b_k x_k$$
+  <p>Each coefficient $b_j$ is the expected change in the target when feature $x_j$ goes up by one unit and the other features stay the same. The coefficients are chosen by <strong>ordinary least squares</strong>, which picks the line that makes the sum of squared errors (actual − predicted)^2 as small as possible. For this project, linear regression predicts a card’s <strong>market price</strong> (on a log scale, explained in Data Prep).</p>
+
+  <p>Logistic regression is used for <em>classification</em>. It predicts the <strong>probability</strong> that an item belongs to class 1, and then turns that probability into a yes/no label. Here it predicts whether a card is <strong>“valuable”</strong> (market price ≥ $5) or not. Despite the name, it is a classifier, not a method for predicting numbers.</p>
+
+  <figure>
+    <img src="img/linear_vs_logistic.png" alt="Left: a straight line fit through scattered points. Right: an S-shaped curve fit to points at 0 and 1.">
+    <figcaption><strong>Figure 1.</strong> Linear regression fits a straight line to a numeric target (left). Logistic regression fits an S-shaped curve to a 0/1 target, so its output is always a probability between 0 and 1 (right). Illustration data.</figcaption>
+  </figure>
+
+
+  <p>Logistic regression starts exactly like linear regression. It computes a linear score</p>
+  <span class="formula">z = b₀ + b₁x₁ + … + bₖxₖ</span>
+  <p>The problem is that <code>z</code> can be any number from −∞ to +∞, while a probability must lie between 0 and 1. The <strong>sigmoid (logistic) function</strong> fixes that:</p>
+  <span class="formula">p = σ(z) = 1 / (1 + e<sup>−z</sup>)</span>
+  <p>Large positive scores give probabilities near 1, large negative scores give probabilities near 0, and <code>z = 0</code> gives exactly 0.5. Read backwards, <code>z</code> is the <strong>log-odds</strong>: <code>z = ln(p / (1 − p))</code>. So logistic regression is a linear model of the log-odds. That is why each coefficient has an “odds” interpretation (see Results).</p>
+
+  <figure>
+    <img src="img/sigmoid.png" alt="Sigmoid curve: probability rises from 0 to 1 as the linear score goes from negative to positive, crossing 0.5 at z = 0.">
+    <figcaption><strong>Figure 2.</strong> The sigmoid maps the linear score z to a probability. With the default 0.5 threshold, any card with z &gt; 0 is labeled “valuable.”</figcaption>
+  </figure>
+
+  <p>To make a decision, the probability is compared with a <strong>threshold</strong>, usually 0.5:</p>
+  <span class="formula">predict 1 (valuable) if p ≥ 0.5, otherwise predict 0 (not valuable)</span>
+  <p>Because σ(0) = 0.5, this is the same as asking whether <code>z ≥ 0</code>. Here is a worked example from the fitted model. Take a 2-year-old card with 200 HP, retreat cost 2, two attacks, and a top attack of 180 damage. At rarity tier 4 (for example, an ex or V card) the model’s score is z = −0.97, so p = 0.28, and it is predicted <em>not valuable</em>. The same card at tier 5 (an illustration or secret rare) gets z = +0.74 and p = 0.68, so it is predicted <em>valuable</em>. The threshold can be moved: lowering it catches more valuable cards at the cost of more false alarms.</p>
+
+<p>How they differ</p>
+<table class="t">
+  <tr><th></th><th>Linear regression</th><th>Logistic regression</th></tr>
+  <tr><td>Task</td><td>Regression (predict a quantity)</td><td>Classification (predict a class)</td></tr>
+  <tr><td>Target</td><td>Continuous number</td><td>Two classes, coded 0/1</td></tr>
+  <tr><td>Output</td><td>Any real number</td><td>Probability in (0, 1), then a label</td></tr>
+  <tr><td>Link</td><td>Identity: ŷ = z</td><td>Sigmoid: p = σ(z)</td></tr>
+  <tr><td>Fitting</td><td>Least squares (minimize squared error)</td><td>Maximum likelihood (minimize log-loss)</td></tr>
+  <tr><td>Coefficient meaning</td><td>Change in the target per unit of x</td><td>Change in log-odds per unit of x; e<sup>b</sup> is an odds ratio</td></tr>
+  <tr><td>Evaluated with</td><td>RMSE, MAE, R²</td><td>Confusion matrix, accuracy, precision, recall, AUC</td></tr>
+</table>
+  </section>
+
 </main>
 
 <footer class="site-footer">
