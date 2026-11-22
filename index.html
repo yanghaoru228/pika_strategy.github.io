@@ -1096,7 +1096,232 @@
   <!-- TAB 7: Regression -->
   <!-- ============================================= -->
   <section id="regression" class="tab-panel active" role="tabpanel">
-    
+    <h2>Overview</h2>
+    <p>
+      Regression is a family of supervised models that learn how a set of input features relates to a target. Both models in this tab start from the same idea, a weighted sum of the features, but they answer different questions.
+      Linear regression predicts a number (here, a card's market price). Logistic regression predicts a class (here, whether a card is "valuable", worth \$5 or more).
+    </p>
+    <ul>
+      <li><strong> Linear Regression </strong>
+        predicts a continuous numeric value. It assumes the target is a straight-line combination of the features:
+        $$\hat{y} = b_0 + b_1 x_1 + b_2 x_2 + \cdots + b_k x_k$$
+        Each coefficient $b_j$ is the expected change in the target when feature $x_j$ goes up by one unit and the other features stay the same.
+        The coefficients are chosen by ordinary least squares, which picks the line that makes the sum of squared errors $\sum (y - \hat{y})^2$ as small as possible.
+        In this tab, linear regression predicts the market price of a card on a log scale.
+      </li>
+      <li><strong> Logistic Regression </strong>
+        is a classifier, despite the name. It predicts the probability that a record belongs to class 1, then turns that probability into a yes/no label.
+        In this tab, it predicts whether a card is valuable (1) or not (0).
+      </li>
+    </ul>
+    <img src="assets/regression/linear_vs_logistic.png" alt="linear vs logistic regression" class="result-chart">
+    <p>
+      Linear regression fits a straight line to a numeric target (left). Logistic regression fits an S-shaped curve to a 0/1 target, so its output is always a probability between 0 and 1 (right). The data in this figure is for illustration only.
+    </p>
+
+    <p><b>From a linear score to a probability: the sigmoid.</b> Logistic regression first computes a linear score, exactly like linear regression:
+      $$z = b_0 + b_1 x_1 + \cdots + b_k x_k$$
+      The score $z$ can be any number from $-\infty$ to $+\infty$, but a probability must lie between 0 and 1. The sigmoid (logistic) function squeezes the score into that range:
+      $$p = \sigma(z) = \frac{1}{1 + e^{-z}}$$
+      Large positive scores give probabilities near 1, large negative scores give probabilities near 0, and $z = 0$ gives exactly 0.5. Read backwards, the score is the log-odds, $z = \ln\left(\frac{p}{1-p}\right)$.
+      So logistic regression is a linear model of the log-odds, which is why each coefficient can be read as a change in the odds (see Results).
+    </p>
+    <img src="assets/regression/sigmoid.png" alt="sigmoid function" class="result-chart">
+
+    <p><b>From a probability to a class.</b> To make a decision, the probability is compared with a threshold, usually 0.5:
+      $$\hat{y} = \begin{cases} 1 \text{ (valuable)} & \text{if } p \geq 0.5 \\ 0 \text{ (not valuable)} & \text{if } p < 0.5 \end{cases}$$
+      Because $\sigma(0) = 0.5$, this is the same as asking whether $z \geq 0$. A worked example from the fitted model: take a 2-year-old card with 200 HP, retreat cost 2, two attacks, and a top attack of 180 damage.
+      At rarity tier 4 (for example, a V or ex card) the score is $z = -0.97$, so $p = 0.28$ and the card is predicted not valuable. The same card at tier 5 (an Illustration or Secret Rare) gets $z = +0.74$ and $p = 0.68$, so it is predicted valuable.
+      The threshold can be moved: lowering it catches more valuable cards, at the cost of more false alarms.
+    </p>
+
+    <p><b>How they differ.</b></p>
+    <table>
+    <thead>
+      <tr>
+        <th> </th>
+        <th>Linear Regression</th>
+        <th>Logistic Regression</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Task</td>
+        <td>Regression (predict a quantity)</td>
+        <td>Classification (predict a class)</td>
+      </tr>
+      <tr>
+        <td>Target</td>
+        <td>Continuous number</td>
+        <td>Two classes, coded 0/1</td>
+      </tr>
+      <tr>
+        <td>Output</td>
+        <td>Any real number</td>
+        <td>Probability in (0, 1), then a label</td>
+      </tr>
+      <tr>
+        <td>Link</td>
+        <td>Identity: $\hat{y} = z$</td>
+        <td>Sigmoid: $p = \sigma(z)$</td>
+      </tr>
+      <tr>
+        <td>Fitting</td>
+        <td>Least squares (minimize squared error)</td>
+        <td>Maximum likelihood (minimize log-loss)</td>
+      </tr>
+      <tr>
+        <td>Coefficient meaning</td>
+        <td>Change in the target per unit of $x$</td>
+        <td>Change in log-odds per unit of $x$; $e^{b}$ is an odds ratio</td>
+      </tr>
+      <tr>
+        <td>Evaluated with</td>
+        <td>RMSE, MAE, $R^2$</td>
+        <td>Confusion matrix, accuracy, precision, recall</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Data Prep</h2>
+  <p>Supervised learning needs labeled data. Each record must carry the correct answer, here the price or the valuable/not label, so the model can learn from it and be checked against it. Both models also need every feature to be numeric with no missing values.</p>
+  <p>The February 2025 snapshot (<a href="Data/modern_pkmn_cards_feb2025.csv">modern</a> and <a href="Data/vintage_pkmn_cards_feb2025.csv">vintage</a>, 7213 cards together) is used, so each card appears only once. The data is prepared in the following steps:</p>
+  <ul>
+    <li><b>Pokémon cards only.</b> Trainer and Energy cards have no HP or attacks, so they were dropped.</li>
+    <li><b>One market price per card.</b> The Holofoil market price is used if the card has one, otherwise the Normal price, otherwise the Reverse Holofoil price. Cards with no price at all were dropped.</li>
+    <li><b>Text converted to numbers.</b> <code>Num_Attacks</code> and <code>Max_Damage</code> are parsed from the Attacks text ("Sweet Scent (), Sting (20)" gives 2 attacks and a max damage of 20). <code>Card_Age_Years</code> is the years from release date to price date.
+      <code>Rarity_Tier</code> maps the 23 rarity names to an ordered scale: 0 Common, 1 Uncommon, 2 Rare/Promo, 3 Rare Holo, 4 V/VMAX/ex/Ultra/Shiny/Radiant, 5 Illustration/Special Illustration/Secret/Rainbow/Hyper. HP and Retreat Cost are already numeric.</li>
+  </ul>
+  <p>Linear regression needs a numeric target and logistic regression needs a two-class label, so two labels are built from the market price:</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Model</th>
+        <th>Features (X)</th>
+        <th>Target / Label (y)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Linear Regression</td>
+        <td><code>HP</code>, <code>Retreat_Cost</code>, <code>Num_Attacks</code>, <code>Max_Damage</code>, <code>Card_Age_Years</code>, <code>Rarity_Tier</code></td>
+        <td><code>Log10_Price</code> $= \log_{10}(\text{market price})$, numeric</td>
+      </tr>
+      <tr>
+        <td>Logistic Regression</td>
+        <td><code>HP</code>, <code>Retreat_Cost</code>, <code>Num_Attacks</code>, <code>Max_Damage</code>, <code>Card_Age_Years</code>, <code>Rarity_Tier</code></td>
+        <td><code>Valuable</code> = 1 if price $\geq \$5$, otherwise 0</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>The price is put on a log scale because prices run from \$0.02 to over \$1,000 and are heavily right-skewed, as shown in the Data Prep tab. On the log scale a straight line fits much better, and each coefficient becomes a percentage change instead of a dollar change.
+    The \$5 cut-off is roughly where a single card is worth pulling out of bulk to sell or protect on its own. 15.8% of cards are valuable, so the two classes are imbalanced.</p>
+  <p>This leaves 5584 labeled cards (5270 modern, 314 vintage). ID, Name, Era, Rarity and Market_Price are kept in the file for reference only and are not given to the models. The labeled data can be found <a href="Data/pokemon_regression_data.csv">here</a>.</p>
+  <img src="assets/regression/data_sample.png" alt="regression_prepared_sample" class="result-chart">
+  <p>Next is to split the dataset into a <a href="Data/regression_train_set.csv">training set</a> and <a href="Data/regression_test_set.csv">testing set</a> with <code>train_test_split(test_size=0.20, random_state=42, stratify=Valuable)</code>.</p>
+  <ul>
+    <li><b>Training Set (80%, 4467 cards)</b> is the only data the models see while learning their coefficients.</li>
+    <li><b>Testing Set (20%, 1117 cards)</b> is held back and used once, to score the models on cards they have never seen.</li>
+    <li><b>Stratified</b> sampling keeps the share of valuable cards the same in both sets (706 of 4467 and 176 of 1117, both about 15.8%).</li>
+    <li><b>Disjoint.</b> The two sets must not share any card. If a card were in both, the model could simply remember its price, and the test score would overstate how well it works on new cards (data leakage). The code checks that no card ID appears in both sets before fitting.</li>
+  </ul>
+  <p>The same split is used for linear regression, logistic regression, and the Naive Bayes comparison, so their scores can be compared fairly.</p>
+  <img src="assets/regression/split.png" alt="regression_split" class="result-chart">
+  <img src="assets/regression/train_sample.png" alt="regression_train_sample" class="result-chart">
+  <img src="assets/regression/test_sample.png" alt="regression_test_sample" class="result-chart">
+
+  <h2>Code</h2>
+    <p>
+      The code of regression analysis can be found <a href="regression_pokemon.py">here</a>. Section 1 is used to preprocess the data: it keeps the Pokémon cards, builds one market price per card, converts the text columns into numerical features, and creates the two labels.
+      Section 3 splits the data into training set and testing set, fits <code>LinearRegression</code> on <code>Log10_Price</code>, fits <code>LogisticRegression</code> on <code>Valuable</code>, and fits a <code>GaussianNB</code> on the same split for comparison.
+      Section 2 holds the plotting functions for all the figures in this tab. All metrics are saved to <a href="Data/regression_results.json">regression_results.json</a>.
+    </p>
+
+  <h2>Results</h2>
+    <p><b>Linear regression.</b> On the 1,117 held-out test cards, the model explains <b>75% of the variation</b> in log price ($R^2 = 0.750$).
+      The test RMSE is 0.473 and the MAE is 0.361 (in $\log_{10}$ dollars). The RMSE is half of the 0.947 you would get by predicting the average price for every card.
+      An MAE of 0.361 on the log scale means a typical prediction is off by a factor of about 2.3 ($10^{0.361}$). Because most cards are cheap, the median miss is only \$0.18.</p>
+    <div class="table-scroll">
+    <table>
+    <thead>
+      <tr>
+        <th>Metric (testing set)</th>
+        <th class="n">Linear Regression</th>
+        <th class="n">Predict the mean</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>$R^2$</td><td class="n"><b>0.750</b></td><td class="n">0.000</td></tr>
+      <tr><td>RMSE ($\log_{10}$ dollars)</td><td class="n"><b>0.473</b></td><td class="n">0.947</td></tr>
+      <tr><td>MAE ($\log_{10}$ dollars)</td><td class="n"><b>0.361</b></td><td class="n">-</td></tr>
+      <tr><td>Median absolute error (dollars)</td><td class="n"><b>\$0.18</b></td><td class="n">-</td></tr>
+    </tbody>
+    </table>
+    </div>
+    <p>The plot below shows predicted against actual price for the testing set. Points on the dashed line are perfect predictions. The model tracks cheap and mid-priced cards well but <b>underpredicts the expensive cards</b>: above about \$20 the points flatten out below the line.
+      What makes a card a \$300 chase card (the specific Pokémon, the artwork, the set) is not in these six features.</p>
+    <img src="assets/regression/pred_vs_actual.png" alt="regression_pred_vs_actual" class="result-chart">
+    <img src="assets/regression/residuals.png" alt="regression_residuals" class="result-chart">
+    <p>The residuals are centered on zero, with a long right tail from the underpredicted chase cards.</p>
+    <img src="assets/regression/linear_coefs.png" alt="regression_linear_coefficients" class="result-chart">
+    <p>Because the target is $\log_{10}(\text{price})$, a coefficient $b$ means the price is multiplied by $10^{b}$ for each one-unit increase in that feature, with the other features held the same.</p>
+    <ul>
+      <li><b>Rarity_Tier ($b = 0.432$).</b> Each step up the rarity scale multiplies the predicted price by $10^{0.432} \approx 2.70$. Going from a Common (tier 0) to a chase rare (tier 5) raises the predicted price by a factor of about 144, for an otherwise identical card. Rarity is by far the strongest driver of price.</li>
+      <li><b>Card_Age_Years ($b = 0.056$).</b> Each extra year since release raises the predicted price by about 14% ($10^{0.056} \approx 1.136$). Older cards go out of print and get scarcer, so they cost more, even after accounting for rarity.</li>
+      <li><b>Retreat_Cost ($b = -0.064$)</b> is a smaller effect: each extra energy to retreat lowers the price by about 14%. HP and Max_Damage have tiny coefficients because they are counted in single points (+100 HP is only about ×1.30).</li>
+    </ul>
+
+    <p><b>Logistic regression.</b> On the same 1,117 test cards, <b>logistic regression scored 92.1% accuracy</b>, (928 + 101) / 1117. Always guessing "not valuable" would score 84.2%, so the model adds about 8 percentage points over that baseline.</p>
+    <img src="assets/regression/confusion_logistic.png" alt="regression_CM_logistic" class="result-chart">
+    <p><b>Confusion Matrix</b> Rows are each card's actual class; columns are what the model predicted. The diagonal holds the correct predictions.</p>
+    <ul>
+      <li><b>When it says valuable, it is usually right.</b> Precision is 0.89: only 13 of the 941 not-valuable cards were flagged as valuable.</li>
+      <li><b>It misses some valuable cards.</b> Recall is 0.57: 75 of the 176 valuable cards were predicted not valuable. These are mostly cards that are valuable for reasons the features don't capture, the same chase cards the linear model underpredicts.</li>
+      <li><b>The threshold can be tuned.</b> If missing a valuable card is costly, lowering the threshold below 0.5 trades some precision for higher recall. The ROC AUC of 0.935 shows the model ranks valuable cards above the others well across all thresholds.</li>
+    </ul>
+    <img src="assets/regression/logistic_coefs.png" alt="regression_logistic_coefficients" class="result-chart">
+    <p><b>What one coefficient means for the odds.</b> The coefficient of Rarity_Tier is $b = 1.71$. Each step up the rarity scale adds 1.71 to the log-odds that a card is valuable, so it multiplies the odds by $e^{1.71} \approx 5.5$, holding the other features fixed.
+      For example, if a tier-3 card has odds of 1 to 9 of being worth \$5 or more ($p = 0.10$), the same card at tier 4 has odds of about 5.5 to 9 ($p \approx 0.38$).
+      Likewise, Card_Age_Years has an odds ratio of $e^{0.188} \approx 1.21$: each year of age raises the odds of being valuable by about 21%.</p>
+
+    <p><b>Comparison with Naive Bayes.</b> The Naive Bayes tab used Multinomial NB to sort cards into three price tiers (Low / Mid / High) and scored 80.4% accuracy against a 62.3% baseline. That is a harder, three-class task on a different split, so the numbers are not directly comparable.
+      To compare fairly, a Gaussian NB (the NB variant for continuous features) was trained on the same six features, the same \$5 label, and the same training/testing split as the logistic regression.</p>
+    <div class="table-scroll">
+    <table>
+    <thead>
+      <tr>
+        <th>Metric (testing set)</th>
+        <th class="n">Logistic Regression</th>
+        <th class="n">Gaussian NB</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="best"><td>Accuracy</td><td class="n"><b>0.921</b></td><td class="n">0.835</td></tr>
+      <tr><td>Precision (valuable)</td><td class="n"><b>0.89</b></td><td class="n">0.48</td></tr>
+      <tr><td>Recall (valuable)</td><td class="n">0.57</td><td class="n"><b>0.64</b></td></tr>
+      <tr><td>F1 (valuable)</td><td class="n"><b>0.70</b></td><td class="n">0.55</td></tr>
+      <tr><td>ROC AUC</td><td class="n"><b>0.935</b></td><td class="n">0.893</td></tr>
+      <tr><td>Confusion [TN, FP / FN, TP]</td><td class="n">928, 13 / 75, 101</td><td class="n">821, 120 / 64, 112</td></tr>
+    </tbody>
+    </table>
+    </div>
+    <img src="assets/regression/model_compare.png" alt="regression_logistic_vs_nb" class="result-chart">
+    <img src="assets/regression/confusion_nb.png" alt="regression_CM_nb" class="result-chart">
+    <img src="assets/regression/roc.png" alt="regression_roc" class="result-chart">
+    <p>Logistic regression is the stronger model here. Naive Bayes finds slightly more of the valuable cards (112 vs 101), but it pays for that with 120 false alarms instead of 13, and its accuracy (83.5%) falls below the "always say not valuable" baseline.
+      The likely reason is the naive assumption that features are independent within each class. Here they clearly are not: HP, Max_Damage and Rarity_Tier rise together (V and ex cards are high-HP, hard-hitting, and rare), so Naive Bayes counts the same evidence several times and becomes overconfident.
+      Logistic regression fits all the weights together, so correlated features share the credit. The same idea shows up in the Naive Bayes tab, where High cards were hard to catch: both NB models struggled at the top of the price range.</p>
+
+<h2>Conclusions</h2>
+<p>A card's printed attributes explain about <b>three quarters</b> of the variation in its (log) price, and they flag cards worth \$5 or more correctly about <b>9 times in 10</b>. For a collector or investor, this says several things:</p>
+<ul>
+  <li><b>Rarity is the price.</b> Each step up the rarity ladder multiplies the expected price by about 2.7 and the odds of a card being worth \$5 or more by about 5.5. This agrees with the Naive Bayes and Decision Tree tabs, and puts a number on it.</li>
+  <li><b>Age adds value.</b> Even with rarity held fixed, older cards cost about 14% more per year. Sets go out of print, the supply of clean copies shrinks, and prices drift up.</li>
+  <li><b>Game stats barely matter for price.</b> HP, attack damage and number of attacks have tiny coefficients once rarity is known. Collectors pay for scarcity and artwork, not playability.</li>
+  <li><b>The models can't spot the chase cards.</b> Prices can be estimated to within a factor of about 2.3, but the true chase cards (a Charizard, a popular Illustration Rare) are the ones the linear model underpredicts and the logistic model misses. Their prices depend on which Pokémon it is and how much people like the art. Adding Pokémon popularity or set position, which helped the Decision Tree tab, would be the natural next step.</li>
+  <li><b>Correlated features favor logistic regression.</b> For the yes/no question "is this card worth \$5?", logistic regression beat Naive Bayes on accuracy, precision, F1 and AUC, because it learns the weights of correlated features together.</li>
+</ul>
+<p>In practical terms, the logistic model can be used as a high-precision filter. A card it calls valuable is almost always worth pulling out and price-checking. The linear model gives a rough price estimate, and the gap between that estimate and the real market price is a starting point for finding cards the market may be over- or under-valuing.</p>
   </section>
 
 </main>
