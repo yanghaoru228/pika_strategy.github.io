@@ -1099,7 +1099,7 @@
     <h2>Overview</h2>
     <p>
       Regression is a family of supervised models that learn how a set of input features relates to a target. Both models in this tab start from the same idea, a weighted sum of the features, but they answer different questions.
-      Linear regression predicts a number (here, a card's market price). Logistic regression predicts a class (here, whether a card is "valuable", worth \$5 or more).
+      Linear regression predicts a number. Logistic regression predicts a class.
     </p>
     <ul>
       <li><strong> Linear Regression </strong>
@@ -1124,7 +1124,7 @@
       The score $z$ can be any number from $-\infty$ to $+\infty$, but a probability must lie between 0 and 1. The sigmoid (logistic) function squeezes the score into that range:
       $$p = \sigma(z) = \frac{1}{1 + e^{-z}}$$
       Large positive scores give probabilities near 1, large negative scores give probabilities near 0, and $z = 0$ gives exactly 0.5. Read backwards, the score is the log-odds, $z = \ln\left(\frac{p}{1-p}\right)$.
-      So logistic regression is a linear model of the log-odds, which is why each coefficient can be read as a change in the odds (see Results).
+      So logistic regression is a linear model of the log-odds, which is why each coefficient can be read as a change in the odds.
     </p>
     <img src="assets/regression/sigmoid.png" alt="sigmoid function" class="result-chart">
 
@@ -1331,8 +1331,7 @@
     <h2>Overview</h2>
     <p>
       Boosting is an ensemble method: it builds one strong classifier out of many weak ones. Unlike a single decision tree, a boosted model is a team of small trees that vote together.
-      What makes boosting different from other ensembles is that the trees are built <b>one after another</b>, and each new tree concentrates on the cards that the earlier trees got wrong.
-      AdaBoost (Adaptive Boosting) is the original and best-known boosting algorithm. In this tab it predicts whether a card is worth \$5 or more from its printed attributes alone.
+      What makes boosting different from other ensembles is that the trees are built one after another, and each new tree concentrates on the cards that the earlier trees got wrong.
     </p>
     <ul>
       <li><strong> Bagging </strong>
@@ -1366,10 +1365,6 @@
       </li>
     </ol>
     <img src="assets/adaboost/ov_toy_rounds.png" alt="adaboost toy example rounds" class="result-chart">
-    <p>
-      AdaBoost on a 40-point toy dataset (illustration only). Point size is the row's weight going into each round, and the black rings mark the rows that round's stump gets wrong. Those rows grow, so the round 2 stump is pulled toward them and splits in a different direction.
-      Each stump alone is at most 78% accurate on the training data, but their $\alpha$-weighted vote (right) draws a staircase boundary that no single stump can draw, and it is 92% accurate.
-    </p>
 
     <p><b>What the weight $\alpha$ of each stump means.</b> $\alpha_t$ is the weight of stump $t$'s vote, i.e. how much the final model trusts it. It depends only on the stump's weighted error:
       $$\alpha_t = \frac{1}{2} \ln\left(\frac{1 - \varepsilon_t}{\varepsilon_t}\right)$$
