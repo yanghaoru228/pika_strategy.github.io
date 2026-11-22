@@ -1324,6 +1324,220 @@
 <p>In practical terms, the logistic model can be used as a high-precision filter. A card it calls valuable is almost always worth pulling out and price-checking. The linear model gives a rough price estimate, and the gap between that estimate and the real market price is a starting point for finding cards the market may be over- or under-valuing.</p>
   </section>
 
+<!-- ============================================= -->
+  <!-- TAB 8: AdaBoost -->
+  <!-- ============================================= -->
+  <section id="adaboost" class="tab-panel" role="tabpanel">
+    <h2>Overview</h2>
+    <p>
+      Boosting is an ensemble method: it builds one strong classifier out of many weak ones. Unlike a single decision tree, a boosted model is a team of small trees that vote together.
+      What makes boosting different from other ensembles is that the trees are built <b>one after another</b>, and each new tree concentrates on the cards that the earlier trees got wrong.
+      AdaBoost (Adaptive Boosting) is the original and best-known boosting algorithm. In this tab it predicts whether a card is worth \$5 or more from its printed attributes alone.
+    </p>
+    <ul>
+      <li><strong> Bagging </strong>
+        (bootstrap aggregating, the idea behind Random Forests) trains every tree <i>independently and in parallel</i>, each on its own random resample of the training data. The trees are usually deep, and every tree gets an equal vote.
+        Averaging many noisy but unbiased trees mainly reduces variance.
+      </li>
+      <li><strong> Boosting </strong>
+        trains trees <i>in sequence</i>. Every tree sees the same rows, but the rows are re-weighted after each round so that the cards misclassified so far count for more.
+        The trees are usually very simple, and each tree's vote is weighted by how accurate it was. Adding up many small corrections mainly reduces bias.
+      </li>
+    </ul>
+    <img src="assets/adaboost/ov_bagging_vs_boosting.png" alt="bagging vs boosting" class="result-chart">
+    <p>
+      Bagging trains trees in parallel on bootstrap samples and takes an equal-weight vote (left). AdaBoost trains stumps one after another: the rows each stump gets wrong are up-weighted for the next round, and the final prediction is a vote weighted by each stump's $\alpha$ (right).
+    </p>
+
+    <p><b>Decision stumps: the weak learners.</b> A decision stump is a decision tree with depth 1: one split and two leaves. It asks a single yes/no question, such as "Is the rarity Illustration Rare?" or "Is HP $\leq 185$?",
+      and predicts the weighted majority class on each side. On its own a stump is a weak learner, only somewhat better than guessing. AdaBoost only needs each stump to beat chance on the <i>current weighting</i> of the data, i.e. a weighted error $\varepsilon < 0.5$.
+    </p>
+
+    <p><b>How AdaBoost reweights the rows.</b> The labels are coded as $y_i \in \{-1, +1\}$. Every one of the $N$ training rows starts with the same weight $w_i = 1/N$. Then, for each round $t = 1, \dots, T$:</p>
+    <ol>
+      <li><strong> Fit a stump </strong> $h_t$ using the current row weights. The stump picks the single split with the lowest <i>weighted</i> error.</li>
+      <li><strong> Measure its weighted error. </strong> $\varepsilon_t$ is the total weight of the rows it gets wrong (the weights sum to 1):
+        $$\varepsilon_t = \sum_{i:\, h_t(x_i) \neq y_i} w_i$$
+      </li>
+      <li><strong> Give the stump a say, </strong> $\alpha_t$ (see below). Low error gives a big $\alpha_t$; error near 0.5 gives $\alpha_t$ near 0.</li>
+      <li><strong> Reweight the rows. </strong> Misclassified rows are multiplied by $e^{\alpha_t}$ (they get heavier), correctly classified rows are multiplied by $e^{-\alpha_t}$ (they get lighter), and the weights are renormalized to sum to 1:
+        $$w_i \leftarrow \frac{w_i \, e^{-\alpha_t \, y_i \, h_t(x_i)}}{\sum_j w_j \, e^{-\alpha_t \, y_j \, h_t(x_j)}}$$
+        Since $y_i h_t(x_i) = +1$ when the stump is right and $-1$ when it is wrong, the next stump is pushed toward the "hard" rows.
+      </li>
+    </ol>
+    <img src="assets/adaboost/ov_toy_rounds.png" alt="adaboost toy example rounds" class="result-chart">
+    <p>
+      AdaBoost on a 40-point toy dataset (illustration only). Point size is the row's weight going into each round, and the black rings mark the rows that round's stump gets wrong. Those rows grow, so the round 2 stump is pulled toward them and splits in a different direction.
+      Each stump alone is at most 78% accurate on the training data, but their $\alpha$-weighted vote (right) draws a staircase boundary that no single stump can draw, and it is 92% accurate.
+    </p>
+
+    <p><b>What the weight $\alpha$ of each stump means.</b> $\alpha_t$ is the weight of stump $t$'s vote, i.e. how much the final model trusts it. It depends only on the stump's weighted error:
+      $$\alpha_t = \frac{1}{2} \ln\left(\frac{1 - \varepsilon_t}{\varepsilon_t}\right)$$
+      An accurate stump ($\varepsilon = 0.10$) gets $\alpha \approx 1.10$, a stump barely better than chance ($\varepsilon = 0.40$) gets $\alpha \approx 0.20$, and a coin flip ($\varepsilon = 0.5$) gets $\alpha = 0$, so it has no say at all.
+      Above 0.5, $\alpha$ would be negative, meaning "do the opposite of what this stump says". The same $\alpha_t$ also sets how hard the row weights move, so a confident stump changes the data a lot for the next round and a weak one barely changes it.
+    </p>
+    <img src="assets/adaboost/ov_alpha_curve.png" alt="alpha vs weighted error" class="result-chart">
+    <p>
+      A note on scikit-learn: <code>AdaBoostClassifier</code> uses the SAMME algorithm, where $\alpha_t = \eta \cdot \ln\left((1 - \varepsilon_t)/\varepsilon_t\right)$ and $\eta$ is the <code>learning_rate</code>. For two classes this is the formula above scaled by $2\eta$, so it ranks the stumps the same way and gives the same predictions when $\eta = 1$.
+      A smaller learning rate shrinks every $\alpha$, so each round moves the model less and more rounds are needed.
+    </p>
+
+    <p><b>The final weighted vote.</b> To classify a new card, every stump votes $+1$ or $-1$, each vote is multiplied by that stump's $\alpha$, and the votes are added up. The sign of the total is the prediction:
+      $$H(x) = \text{sign}\left(\sum_{t=1}^{T} \alpha_t \, h_t(x)\right)$$
+      For example, if three stumps vote Yes ($+1$), No ($-1$), Yes ($+1$) with $\alpha = 1.75, 0.50, 0.67$, the score is $1.75 - 0.50 + 0.67 = +1.92 > 0$, so the prediction is Yes.
+      In the card model below, the very first stump asked "Is the rarity Illustration Rare?" and received $\alpha = 1.75$, the loudest single vote in the whole ensemble.
+    </p>
+
+    <h2>Data Prep</h2>
+    <p>Supervised learning needs labeled data. Each record must carry the correct answer (the label) so the model can learn which feature patterns go with which class, and the labeled data is split into a Training Set (to build the model) and a Testing Set (to test it).</p>
+    <p>The February 2025 snapshot (<a href="Data/modern_pkmn_cards_feb2025.csv">modern</a> and <a href="Data/vintage_pkmn_cards_feb2025.csv">vintage</a>, 7213 cards together) is used, so each card appears only once.
+      The label is built from the market price:</p>
+    <ul>
+      <li><b>One price per card.</b> <code>Best Market Price</code> is the highest market price among a card's printings (Normal, Reverse Holofoil, Holofoil).</li>
+      <li><b>Label.</b> <code>High Value</code> = Yes if the best market price is $\geq \$5$, otherwise No. Just like the Regression tab, \$5 is roughly where a single card is worth pulling out of bulk.</li>
+      <li><b>Rows dropped.</b> 522 cards had no market price at all, so they have no label and were dropped. That leaves <b>6691 labeled cards</b>, and 17.2% of them are High Value, so the classes are imbalanced.</li>
+      <li><b>No leakage.</b> The price columns are used only to build the label. None of them is given to the model.</li>
+    </ul>
+    <p>A sample of the raw data that is used can be found <a href="Data/adaboost_raw_sample.csv">here</a>.</p>
+    <img src="assets/adaboost/dp_raw_sample.png" alt="adaboost_raw_sample" class="result-chart">
+    <p>The features are built from the printed information on the card. The cleaned and labeled data can be found <a href="Data/adaboost_cleaned_data.csv">here</a>.</p>
+    <table>
+      <thead><tr><th>Feature</th><th>Built from</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><code>HP</code>, <code>Retreat Cost</code></td><td>HP, Retreat Cost</td><td>Gameplay stats (0 for Trainers and Energy)</td></tr>
+        <tr><td><code>Release Year</code></td><td>Release Date</td><td>Year the set came out</td></tr>
+        <tr><td><code>Num Attacks</code>, <code>Max Damage</code></td><td>Attacks</td><td>Number of attacks and the largest printed damage ("Line Force (50+)" gives 50)</td></tr>
+        <tr><td><code>Era</code></td><td>File</td><td>Modern or Vintage</td></tr>
+        <tr><td><code>Supertype</code>, <code>Rarity</code></td><td>Supertype, Rarity</td><td>Categories; a missing rarity becomes "Unknown"</td></tr>
+        <tr><td><code>Type</code>, <code>Weakness</code></td><td>Types, Weaknesses</td><td>Primary energy type and weakness type; "None" for Trainers and Energy</td></tr>
+        <tr><td><code>Subtypes</code></td><td>Subtypes</td><td>Comma-separated list, e.g. "Basic, V" or "Stage 2, ex"</td></tr>
+      </tbody>
+    </table>
+    <img src="assets/adaboost/dp_cleaned.png" alt="adaboost_cleaned_sample" class="result-chart">
+    <p><code>Best Market Price</code> is shown for reference only: it defines the label and is dropped before modeling.</p>
+
+    <p><b>Turning categories into numbers.</b> AdaBoost in scikit-learn (and the stumps inside it) only accepts numeric inputs, so the text columns have to be converted first.
+      Mapping categories to integers (Fire = 1, Water = 2, ...) would invent an order that doesn't exist, so <b>one-hot encoding</b> is used instead: every category gets its own 0/1 column.
+      A Water-type card gets <code>Type_Water</code> = 1 and 0 in every other <code>Type_</code> column. This was done with <code>pd.get_dummies</code> for Era, Supertype, Rarity, Type and Weakness.
+      <code>Subtypes</code> can hold several values at once, so it was <b>multi-hot</b> encoded: one 0/1 column for each of 18 common subtypes (<code>Subtype_V</code>, <code>Subtype_ex</code>, <code>Subtype_Stage 2</code>, ...), and one card can have several 1s.
+      After encoding, every card is a row of <b>72 numeric features</b>.</p>
+    <img src="assets/adaboost/dp_onehot_before.png" alt="adaboost_onehot_before" class="result-chart">
+    <img src="assets/adaboost/dp_onehot_after.png" alt="adaboost_onehot_after" class="result-chart">
+    <p>Before (text categories) and after (one 0/1 column per category, subset shown) one-hot encoding. The step in Section 2 of the <a href="adaboost_pokemon.py">code</a> is:</p>
+    <pre><code>def encode(c):
+    X = c[NUMERIC].copy()                                                # HP, Retreat Cost, Release Year, ...
+    oh = pd.get_dummies(c[CATEGORICAL], prefix=CATEGORICAL, dtype=int)   # one-hot
+    subs = c["Subtypes"].str.split(r",\s*")
+    for s in KEEP_SUBTYPES:                                              # multi-hot
+        X[f"Subtype_{s}"] = subs.apply(lambda lst: int(s in lst))
+    return pd.concat([X, oh], axis=1)</code></pre>
+    <p>The labeled data with numeric features can be found <a href="Data/adaboost_encoded_data.csv">here</a>.</p>
+
+    <p>Next is to split the dataset into a <a href="Data/adaboost_train_set.csv">training set</a> and <a href="Data/adaboost_test_set.csv">testing set</a> with <code>train_test_split(test_size=0.20, random_state=42, stratify=y)</code>.</p>
+    <ul>
+      <li><b>Training Set (80%, 5352 cards)</b> is the only data the model sees while choosing its stumps and their weights. All tuning (cross-validation and the validation curve in Results) also uses only the training set.</li>
+      <li><b>Testing Set (20%, 1339 cards)</b> is held back and used once, at the very end, to score the model on cards it has never seen.</li>
+      <li><b>Stratified</b> sampling keeps the share of High Value cards the same in both sets (about 17.2%).</li>
+      <li><b>Disjoint.</b> The two sets must not share any card. If a card were in both, the model could simply remember its label, and the test score would measure memory instead of how well it works on new cards. An ensemble of hundreds of stumps can memorize a lot, so this matters even more here. The code checks that no row and no card ID appears in both sets before fitting.</li>
+    </ul>
+    <img src="assets/adaboost/dp_train.png" alt="adaboost_train_sample" class="result-chart">
+    <img src="assets/adaboost/dp_test.png" alt="adaboost_test_sample" class="result-chart">
+
+    <h2>Code</h2>
+    <p>
+      The code of AdaBoost analysis can be found <a href="adaboost_pokemon.py">here</a>. Section 1 loads the February snapshot and builds the High Value label. Section 2 cleans the data and converts the qualitative features into one-hot and multi-hot numerical columns.
+      Section 3 splits the data into training set and testing set. Section 4 fits <code>AdaBoostClassifier</code> with decision stumps (<code>DecisionTreeClassifier(max_depth=1)</code>), tunes <code>n_estimators</code> and <code>learning_rate</code> with 5-fold cross-validation on the training set, and tracks validation accuracy round by round with <code>staged_predict</code>.
+      Section 5 fits a decision tree on the same split for comparison. Section 6 scores both models on the testing set and plots the confusion matrices, the comparison and the stump weights. Section 7 re-scores the test cards with the March 2025 prices.
+      All metrics are saved to <a href="Data/adaboost_results.json">adaboost_results.json</a>. The figures in the Overview are made by <a href="overview_figures.py">this code</a>.
+    </p>
+
+    <h2>Results</h2>
+    <p>On the 1,339 held-out test cards, <b>AdaBoost scored 91.3% accuracy</b>, (1079 + 143) / 1339. Always guessing "not High Value" would score 82.8%, so the model adds about 8.4 percentage points over that baseline and cuts the number of errors roughly in half (from 230 to 117).</p>
+    <img src="assets/adaboost/res_cm_adaboost.png" alt="adaboost_CM" class="result-chart">
+    <p><b>Confusion Matrix</b> Rows are each card's actual class; columns are what the model predicted. The diagonal holds the correct predictions.</p>
+    <ul>
+      <li><b>Cheap cards are easy.</b> 1079 of the 1109 cards under \$5 (97%) were correctly called No.</li>
+      <li><b>When it says High Value, it is usually right.</b> Precision is 0.83: only 30 cheap cards were flagged.</li>
+      <li><b>It misses some valuable cards.</b> Recall is 0.62: 87 of the 230 cards worth \$5 or more were predicted No. These are valuable cards whose printed traits look ordinary, such as playable Uncommons or Rares of popular Pokémon. The balanced accuracy (the average recall of the two classes) is 79.7%.</li>
+    </ul>
+
+    <p><b>Tuning the number of rounds and the learning rate.</b> Every combination of 6 values of <code>n_estimators</code> and 5 values of <code>learning_rate</code> was scored with 5-fold stratified cross-validation on the training set.</p>
+    <img src="assets/adaboost/res_tuning_heatmap.png" alt="adaboost_tuning_heatmap" class="result-chart">
+    <p>The best setting is <b>n_estimators = 800 and learning_rate = 1.0</b>, with a cross-validated accuracy of 0.917, only just ahead of 400 rounds (0.916). Small learning rates with few rounds sit at 0.828, which is exactly the "always No" rate:
+      the shrunken stumps never build up enough total vote to flip any card to Yes.</p>
+
+    <p><b>Validation accuracy as rounds are added.</b> To watch the ensemble grow, 20% of the training set was held out as a validation set. Models with up to 800 rounds were trained on the other 80%, and the ensemble was scored on the validation set after every single round.</p>
+    <img src="assets/adaboost/res_staged_accuracy.png" alt="adaboost_staged_accuracy" class="result-chart">
+    <div class="table-scroll">
+    <table>
+    <thead><tr><th>Learning rate</th><th class="n">1 round</th><th class="n">25 rounds</th><th class="n">100 rounds</th><th class="n">200 rounds</th><th class="n">400 rounds</th><th class="n">800 rounds</th></tr></thead>
+    <tbody>
+      <tr><td>0.1</td><td class="n">0.849</td><td class="n">0.828</td><td class="n">0.828</td><td class="n">0.828</td><td class="n">0.877</td><td class="n">0.890</td></tr>
+      <tr><td>0.5</td><td class="n">0.849</td><td class="n">0.860</td><td class="n">0.890</td><td class="n">0.894</td><td class="n">0.894</td><td class="n">0.906</td></tr>
+      <tr class="best"><td>1.0</td><td class="n">0.849</td><td class="n">0.890</td><td class="n">0.894</td><td class="n">0.902</td><td class="n">0.917</td><td class="n"><b>0.918</b></td></tr>
+    </tbody>
+    </table>
+    </div>
+    <p>With learning rate 1.0, accuracy climbs quickly over the first 25 rounds and levels off around 0.917 from about 400 rounds. Learning rate 0.5 follows the same path more slowly, and learning rate 0.1 stays at the "always No" line for about 250 rounds.
+      The curves flatten instead of falling, so adding rounds did not cause visible overfitting in this range.</p>
+
+    <p><b>What the stumps learned.</b> The first five stumps of the final model (with $\alpha$ as scikit-learn computes it, $\eta = 1$):</p>
+    <table>
+      <thead><tr><th>Round</th><th>Question</th><th class="n">Weighted error $\varepsilon$</th><th class="n">$\alpha$</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Rarity = Illustration Rare?</td><td class="n">0.149</td><td class="n">1.75</td></tr>
+        <tr><td>2</td><td>Rarity = Common?</td><td class="n">0.378</td><td class="n">0.50</td></tr>
+        <tr><td>3</td><td>Era = Vintage?</td><td class="n">0.338</td><td class="n">0.67</td></tr>
+        <tr><td>4</td><td>Rarity = Uncommon?</td><td class="n">0.343</td><td class="n">0.65</td></tr>
+        <tr><td>5</td><td>HP $\leq$ 185?</td><td class="n">0.333</td><td class="n">0.69</td></tr>
+      </tbody>
+    </table>
+    <img src="assets/adaboost/res_feature_alpha.png" alt="adaboost_feature_alpha" class="result-chart">
+    <p>Adding up the $\alpha$ of all the stumps that split on each feature shows that rarity and release year/era dominate. Later stumps go after small groups: <code>Rarity_Unknown</code> covers only 12 vintage cards, but late rounds kept re-splitting on it as the weights piled onto a few hard rows, which is typical boosting behavior.</p>
+
+    <p><b>Comparison with the Decision Tree.</b> The Decision Trees tab sorted cards into three price tiers (Low / Mid / High), and its best tree (Tree 2, entropy, depth 6) scored 86.5% accuracy against a 62.8% baseline.
+      That is a harder, three-class task on a different split, so the numbers are not directly comparable. To compare fairly, a decision tree was trained on the same 72 features, the same \$5 label, and the same training/testing split as AdaBoost,
+      with <code>max_depth</code> and <code>min_samples_leaf</code> tuned by the same 5-fold cross-validation (best: depth 10, at least 5 cards per leaf).</p>
+    <div class="table-scroll">
+    <table>
+    <thead>
+      <tr>
+        <th>Metric (testing set)</th>
+        <th class="n">AdaBoost (800 stumps)</th>
+        <th class="n">Decision Tree (depth 10)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Accuracy</td><td class="n">0.913</td><td class="n"><b>0.914</b></td></tr>
+      <tr><td>Balanced accuracy</td><td class="n"><b>0.797</b></td><td class="n">0.788</td></tr>
+      <tr><td>Precision (High Value)</td><td class="n">0.83</td><td class="n"><b>0.86</b></td></tr>
+      <tr><td>Recall (High Value)</td><td class="n"><b>0.62</b></td><td class="n">0.60</td></tr>
+      <tr><td>F1 (High Value)</td><td class="n"><b>0.710</b></td><td class="n">0.704</td></tr>
+      <tr><td>5-fold CV accuracy (training set)</td><td class="n"><b>0.917</b></td><td class="n">0.916</td></tr>
+      <tr><td>Accuracy on vintage test cards (64)</td><td class="n"><b>0.969</b></td><td class="n">0.906</td></tr>
+      <tr><td>Confusion [TN, FP / FN, TP]</td><td class="n">1079, 30 / 87, 143</td><td class="n">1087, 22 / 93, 137</td></tr>
+    </tbody>
+    </table>
+    </div>
+    <img src="assets/adaboost/res_compare.png" alt="adaboost_vs_tree" class="result-chart">
+    <img src="assets/adaboost/res_cm_tree.png" alt="dec_tree_CM_5dollar" class="result-chart">
+    <p>On accuracy the two models are essentially <b>tied</b>: the decision tree is ahead by 0.15 percentage points, which is only 2 cards out of 1,339 and well within run-to-run noise.
+      They make different kinds of mistakes, though. AdaBoost finds 6 more of the valuable cards, has the higher balanced accuracy and F1, and did clearly better on the small vintage group (4 more vintage cards correct).
+      The tree is more cautious and raises 8 fewer false alarms. If the goal is "don't let a \$5 card slip into the bulk box", AdaBoost is slightly better; if the goal is "only flag a card when you're sure", the tree is.</p>
+    <p><b>A one-month check.</b> As an extra test, the same test cards were re-labeled with the March 2025 prices and scored with the February models. AdaBoost scored 91.0% and the tree 91.2%, so what the models learned is not tied to a single snapshot.</p>
+
+<h2>Conclusions</h2>
+<p>Using only what a collector can see on the card, AdaBoost labeled about <b>9 cards in 10</b> correctly as worth \$5 or more or not. It caught 62% of the valuable cards, and when it called a card valuable it was right 83% of the time. For a collector or investor, this says several things:</p>
+<ul>
+  <li><b>Rarity is the strongest signal, and the modern chase rarities are near-sure bets.</b> The very first stump asked "Is it an Illustration Rare?" and earned the biggest vote in the model. 96% of Special Illustration Rares, 86% of Illustration Rares, 80% of Hyper Rares and 75% of Rainbow Rares are worth \$5 or more, compared with only 2–3% of Commons and Uncommons. In the modern era, a card's value is largely decided by the rarity tier it is printed at.</li>
+  <li><b>Era adds value on its own.</b> About half of the priced vintage cards (1999–2002) are worth \$5 or more, compared with 15% of modern cards. Stumps on "Era = Vintage" and "Release Year $\leq$ 2010" were among the earliest and strongest, and AdaBoost got 97% of the held-out vintage cards right. This agrees with the Decision Trees and Regression tabs.</li>
+  <li><b>Game stats barely matter for price.</b> HP appeared once among the first stumps, but rarity and era carried almost all of the total vote. Collectors pay for scarcity and artwork, not playability.</li>
+  <li><b>The model can't spot the chase cards inside a rarity.</b> Most errors are valuable cards that look ordinary: a competitively played Uncommon, a Rare of a fan-favorite Pokémon, a vintage card valued for nostalgia. Pokémon popularity, tournament play and condition are not in these features. Adding Pokémon popularity or set position, which helped the Decision Tree tab, is the natural next step to catch the missed 38%.</li>
+  <li><b>Boosting matched the tree, but did not beat it.</b> 800 one-question stumps matched a tuned depth-10 tree on accuracy and were a little better at finding the valuable minority, while the tree is far easier to read. On this data the features carry most of the signal, so which features the model gets matters more than which model is used.</li>
+</ul>
+<p>In practical terms, AdaBoost can be used as a first-pass sorter that leans toward catching valuable cards. A card it calls High Value is worth pulling out and price-checking, and lowering its decision threshold would catch even more of them at the cost of more false alarms.</p>
+  </section>
+
 </main>
 
 <footer class="site-footer">
